@@ -32,7 +32,7 @@ export async function middleware(request: NextRequest) {
   }
 
   // Protect all authenticated routes (optional - if you want all routes to require auth)
-  const publicRoutes = ["/login", "/signup", "/privacy", "/terms", "/contact"];
+  const publicRoutes = ["/login", "/signup", "/privacy", "/terms", "/contact", "/whats-new"];
   const isPublicRoute = publicRoutes.some((route) =>
     pathname.startsWith(route)
   );

@@ -26,7 +26,7 @@ function WhatsNewPage() {
         "Add ingredients to your personal database",
         "Track your daily nutrition and calories",
         "Manage your ingredient and recipe inventory",
-        "Share recipes with the community (pending approval)",
+        // "Share recipes with the community (pending approval)",
         "Set dietary goals and preferences",
       ],
       note: "This is just the beginning! We're actively developing new features and would love to hear your feedback.",
