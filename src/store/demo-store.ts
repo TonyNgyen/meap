@@ -83,6 +83,7 @@ type DemoState = {
     // Actions - Recipes
     addRecipe: (recipe: Omit<Recipe, 'id' | 'created_at' | 'updated_at' | 'user_id'>) => Recipe;
     addRecipeIngredient: (recipeIngredient: Omit<RecipeIngredient, 'id' | 'created_at'>) => void;
+    addRecipeNutrient: (recipeNutrient: RecipeNutrient) => void;
     getRecipes: () => Recipe[];
     getRecipeById: (id: string) => Recipe | undefined;
     getRecipeIngredients: (recipeId: string) => RecipeIngredient[];
@@ -181,6 +182,12 @@ export const useDemoStore = create<DemoState>((set, get) => ({
         };
         set((state) => ({
             recipeIngredients: [...state.recipeIngredients, newRecipeIngredient],
+        }));
+    },
+
+    addRecipeNutrient: (recipeNutrient) => {
+        set((state) => ({
+            recipeNutrients: [...state.recipeNutrients, recipeNutrient],
         }));
     },
 

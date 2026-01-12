@@ -3,6 +3,7 @@
 import AddInventoryForm from "@/components/add-inventory-form";
 import React, { useEffect, useState } from "react";
 import { LuBox } from "react-icons/lu";
+import { useFetch } from "@/providers/demo-provider"; // ← ADD THIS IMPORT
 
 type Ingredient = { id: string; name: string; brand: string | null };
 type Recipe = { id: string; name: string };
@@ -20,10 +21,13 @@ export default function InventoryPage() {
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
+  // ← ADD THIS LINE
+  const { fetch: customFetch } = useFetch();
+
   // ✅ Fetch inventory list
   const fetchInventory = async () => {
     try {
-      const res = await fetch("/api/inventory");
+      const res = await customFetch("/api/inventory"); // ← CHANGE: fetch → customFetch
       const data = await res.json();
       console.log("Fetched inventory:", data);
       if (data.success) setInventory(data.inventory);
@@ -161,7 +165,7 @@ export default function InventoryPage() {
                     <div className="text-2xl font-bold text-[#3A8F9E] dark:text-[#C9E6EA]">
                       {item.quantity}
                     </div>
-                    <div className="text-sm text-zinc-500 dark:text-zinc-400 uppercase">
+                    <div className="text-sm font-medium text-zinc-500 dark:text-zinc-400 uppercase">
                       {item.unit}
                     </div>
                   </div>
