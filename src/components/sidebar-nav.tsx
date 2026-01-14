@@ -16,21 +16,32 @@ import {
 
 interface SidebarNavProps {
   isAdmin: boolean;
+  isDemo: boolean;
 }
 
-export default function SidebarNav({ isAdmin }: SidebarNavProps) {
+export default function SidebarNav({ isAdmin, isDemo }: SidebarNavProps) {
   const pathname = usePathname();
-  console.log(isAdmin);
-
-  const navItems = [
-    { href: "/", label: "Dashboard", icon: LuLayoutDashboard },
-    { href: "/foodlog", label: "Food Log", icon: LuUtensils },
-    { href: "/recipes", label: "Recipes", icon: LuChefHat },
-    { href: "/ingredients", label: "Ingredients", icon: LuApple },
-    { href: "/inventory", label: "Inventory", icon: LuBox },
-    { href: "/goals", label: "Goals", icon: LuTrophy },
-    // { href: "/settings", label: "Settings", icon: LuSettings },
-  ];
+  let navItems;
+  if (isDemo) {
+    navItems = [
+      { href: "/demo", label: "Dashboard", icon: LuLayoutDashboard },
+      { href: "/demo/foodlog", label: "Food Log", icon: LuUtensils },
+      { href: "/demo/recipes", label: "Recipes", icon: LuChefHat },
+      { href: "/demo/ingredients", label: "Ingredients", icon: LuApple },
+      { href: "/demo/inventory", label: "Inventory", icon: LuBox },
+      { href: "/demo/goals", label: "Goals", icon: LuTrophy },
+    ];
+  } else {
+    navItems = [
+      { href: "/", label: "Dashboard", icon: LuLayoutDashboard },
+      { href: "/foodlog", label: "Food Log", icon: LuUtensils },
+      { href: "/recipes", label: "Recipes", icon: LuChefHat },
+      { href: "/ingredients", label: "Ingredients", icon: LuApple },
+      { href: "/inventory", label: "Inventory", icon: LuBox },
+      { href: "/goals", label: "Goals", icon: LuTrophy },
+      // { href: "/settings", label: "Settings", icon: LuSettings },
+    ];
+  }
 
   return (
     <aside className="w-64 h-screen border-r border-r-zinc-200 dark:border-r-zinc-700 flex flex-col">

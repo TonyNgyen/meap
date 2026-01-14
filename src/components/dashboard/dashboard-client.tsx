@@ -7,7 +7,7 @@ import { LuUtensils, LuBookOpen, LuCarrot, LuBoxes } from "react-icons/lu";
 import Link from "next/link";
 import AddLogModal from "../add-log-modal";
 import AddInventoryModal from "../add-inventory-modal"; // Import the inventory modal
-import { logout } from "@/app/logout/actions";
+import { logout } from "@/app/(authenticated)/logout/actions";
 
 type NutrientOverviewHandle = {
   refresh: () => Promise<void>;

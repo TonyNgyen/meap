@@ -12,7 +12,6 @@ export type Ingredient = {
   is_verified: boolean;
   verified_by: string | null;
   verified_at: string | null;
-  parent_ingredient_id: string | null;
 };
 
 export type IngredientNutrient = {

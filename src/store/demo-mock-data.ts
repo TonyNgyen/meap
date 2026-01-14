@@ -41,7 +41,6 @@ export const mockIngredients: Ingredient[] = [
     is_verified: true,
     verified_by: null,
     verified_at: null,
-    parent_ingredient_id: null,
   },
   {
     id: 'ing-2',
@@ -53,7 +52,6 @@ export const mockIngredients: Ingredient[] = [
     is_verified: true,
     verified_by: null,
     verified_at: null,
-    parent_ingredient_id: null,
   },
   {
     id: 'ing-3',
@@ -65,7 +63,6 @@ export const mockIngredients: Ingredient[] = [
     is_verified: true,
     verified_by: null,
     verified_at: null,
-    parent_ingredient_id: null,
   },
   {
     id: 'ing-4',
@@ -77,7 +74,6 @@ export const mockIngredients: Ingredient[] = [
     is_verified: true,
     verified_by: null,
     verified_at: null,
-    parent_ingredient_id: null,
   },
   {
     id: 'ing-5',
@@ -89,7 +85,6 @@ export const mockIngredients: Ingredient[] = [
     is_verified: true,
     verified_by: null,
     verified_at: null,
-    parent_ingredient_id: null,
   },
 ];
 

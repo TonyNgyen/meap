@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import AddIngredientForm from "./add-ingredient-form";
+import { useFetch } from "@/providers/demo-provider"; // ← ADD THIS IMPORT
 
 type Nutrient = {
   id: number;
@@ -45,12 +46,13 @@ export default function IngredientsList({ user_id }: { user_id: string }) {
   );
   const [sortKey, setSortKey] = useState<string>("name"); // Default sort by name
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
+  const { fetch: customFetch } = useFetch();
 
   const fetchIngredients = async () => {
     setLoading(true);
 
     try {
-      const res = await fetch("/api/ingredients", {
+      const res = await customFetch("/api/ingredients", {
         method: "GET",
         headers: { "Content-Type": "application/json" },
       });
@@ -77,6 +79,7 @@ export default function IngredientsList({ user_id }: { user_id: string }) {
           })),
           units: ing.units, // Include units if needed
         }));
+        console.log("Fetched ingredients:", formatted);
         setIngredients(formatted);
       }
     } catch (error) {
