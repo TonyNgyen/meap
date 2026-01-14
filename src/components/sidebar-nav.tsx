@@ -12,7 +12,9 @@ import {
   LuUtensils,
   LuTrophy,
   LuUserRoundCog,
+  LuInfo,
 } from "react-icons/lu";
+import { Tooltip } from "./tooltip";
 
 interface SidebarNavProps {
   isAdmin: boolean;
@@ -47,9 +49,29 @@ export default function SidebarNav({ isAdmin, isDemo }: SidebarNavProps) {
     <aside className="w-64 h-screen border-r border-r-zinc-200 dark:border-r-zinc-700 flex flex-col">
       {/* Logo/Brand */}
       <div className="p-6 border-b border-b-zinc-200 dark:border-b-zinc-700">
-        <Link href="/" className="text-xl font-sans font-semibold">
-          meap
-        </Link>
+        {isDemo ? (
+          <div className="flex gap-4 items-center">
+            <Link href="/demo" className="text-xl font-sans font-semibold">
+              meap
+            </Link>
+            <Tooltip
+              text="This is a demo account. Data will be reset on page refresh."
+              position="right"
+            >
+              <span className="px-2 py-1 bg-[#3A8F9E] text-white text-md font-semibold rounded-md self-center flex items-center gap-1">
+                Demo
+                <LuInfo
+                  className="text-white text-md"
+                  title="This is a demo account. Data will be reset on page refresh."
+                />
+              </span>
+            </Tooltip>
+          </div>
+        ) : (
+          <Link href="/" className="text-xl font-sans font-semibold">
+            meap
+          </Link>
+        )}
       </div>
 
       {/* Navigation */}

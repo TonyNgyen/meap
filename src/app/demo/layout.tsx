@@ -18,7 +18,7 @@ export default function RootLayout({
   return (
     <DemoProvider isDemo={true}>
       {/* Demo Mode Banner - Fixed at top of viewport */}
-      <div className="fixed top-0 left-0 right-0 bg-gradient-to-r from-[#3A8F9E] to-[#2A6F7E] text-white py-3 px-4 z-50 shadow-lg">
+      {/* <div className="fixed top-0 left-0 right-0 bg-gradient-to-r from-[#3A8F9E] to-[#2A6F7E] text-white py-3 px-4 z-50 shadow-lg">
         <div className="max-w-7xl mx-auto flex items-center justify-between flex-wrap gap-2">
           <div className="flex items-center gap-3">
             <div>
@@ -34,10 +34,10 @@ export default function RootLayout({
             </button>
           </Link>
         </div>
-      </div>
+      </div> */}
 
       {/* Main Layout - Same as authenticated layout but REPLACE the outer wrapper */}
-      <div className="flex h-screen pt-[60px]">
+      <div className="flex h-screen">
         <SidebarNav isAdmin={false} isDemo={true} />
 
         <div className="flex-1 flex flex-col overflow-y-auto">
