@@ -13,15 +13,41 @@ export default function SignupPage() {
   const [serverError, setServerError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [errorField, setErrorField] = useState<string | null>(null);
+  const [emailError, setEmailError] = useState("");
 
-  // 1. Create the submission handler
+  // Email validation function
+  const isValidEmail = (email: string) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
+  const handleEmailBlur = () => {
+    if (email && !isValidEmail(email)) {
+      setEmailError("Please enter a valid email address");
+      setErrorField("email");
+    } else {
+      setEmailError("");
+      if (errorField === "email") {
+        setErrorField(null);
+      }
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setServerError(null);
-    setErrorField(null); // Clear previous error field
+    setErrorField(null);
+    setEmailError("");
     setIsLoading(true);
 
-    // ... (FormData creation and client-side username validation) ...
+    // Validate email format
+    if (!isValidEmail(email)) {
+      setEmailError("Please enter a valid email address");
+      setErrorField("email");
+      setIsLoading(false);
+      return;
+    }
+
     const formData = new FormData();
     formData.append("firstName", firstName);
     formData.append("lastName", lastName);
@@ -40,7 +66,6 @@ export default function SignupPage() {
       setErrorField("username");
       return;
     }
-    // --- End Username Validation ---
 
     try {
       const result = await signup(formData);
@@ -50,7 +75,6 @@ export default function SignupPage() {
         setServerError(result.error);
         setIsLoading(false);
 
-        // 🔑 UPDATED: Logic to identify which field caused the error
         if (
           lowerCaseError.includes("password") ||
           lowerCaseError.includes("length") ||
@@ -62,17 +86,14 @@ export default function SignupPage() {
         } else if (lowerCaseError.includes("please use a different username")) {
           setErrorField("username");
         } else {
-          setErrorField("form"); // Default to a general form error
+          setErrorField("form");
         }
       }
     } catch (error) {
-      // 🛑 FIX: Filter the NEXT_REDIRECT error 🛑
       if (error instanceof Error && error.message === "NEXT_REDIRECT") {
-        // Re-throw the error so Next.js can properly handle the redirect
         throw error;
       }
 
-      // Handle all other unexpected client-side or network errors
       console.error("Unexpected signup error:", error);
       setServerError("An unexpected error occurred. Please try again.");
       setErrorField("form");
@@ -94,16 +115,12 @@ export default function SignupPage() {
         </div>
 
         {/* Signup Form */}
-        {/* 4. Attach the handleSubmit handler */}
         <form
           onSubmit={handleSubmit}
           className="mt-8 space-y-6 bg-white dark:bg-zinc-800 p-8 rounded-2xl shadow-sm border border-zinc-200 dark:border-zinc-700"
         >
           <div className="space-y-4">
-            {/* Name Row and other inputs are the same */}
-            {/* ... Your input fields (First Name, Last Name, Email, Username, Password) ... */}
-
-            {/* ERROR DISPLAY AREA */}
+            {/* Name Row */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label
@@ -112,7 +129,6 @@ export default function SignupPage() {
                 >
                   First Name
                 </label>
-
                 <input
                   id="first-name"
                   name="firstName"
@@ -133,7 +149,6 @@ export default function SignupPage() {
                 >
                   Last Name
                 </label>
-
                 <input
                   id="last-name"
                   name="lastName"
@@ -149,7 +164,6 @@ export default function SignupPage() {
             </div>
 
             {/* Email Input */}
-
             <div>
               <label
                 htmlFor="email"
@@ -157,7 +171,6 @@ export default function SignupPage() {
               >
                 Email address
               </label>
-
               <input
                 id="email"
                 name="email"
@@ -165,20 +178,29 @@ export default function SignupPage() {
                 autoComplete="email"
                 required
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={(e) => {
+                  setEmail(e.target.value);
+                  if (emailError) setEmailError("");
+                  if (errorField === "email") setErrorField(null);
+                }}
+                onBlur={handleEmailBlur}
                 className={`relative block w-full px-4 py-3 border 
-            ${
-              serverError && errorField === "email"
-                ? "border-red-500 dark:border-red-500 focus:ring-red-500 dark:focus:ring-red-500"
-                : "border-zinc-300 dark:border-zinc-600 focus:ring-zinc-500 dark:focus:ring-zinc-400 transition-all duration-200"
-            }
-            placeholder-zinc-500 dark:placeholder-zinc-400 text-zinc-900 dark:text-white bg-white dark:bg-zinc-700 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-zinc-500 dark:focus:ring-zinc-400 focus:border-transparent`}
+                  ${
+                    (serverError && errorField === "email") || emailError
+                      ? "border-red-500 dark:border-red-500 focus:ring-red-500 dark:focus:ring-red-500"
+                      : "border-zinc-300 dark:border-zinc-600 focus:ring-zinc-500 dark:focus:ring-zinc-400"
+                  }
+                  placeholder-zinc-500 dark:placeholder-zinc-400 text-zinc-900 dark:text-white bg-white dark:bg-zinc-700 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:border-transparent`}
                 placeholder="Email address"
               />
+              {emailError && (
+                <p className="mt-1.5 text-sm text-red-600 dark:text-red-400">
+                  {emailError}
+                </p>
+              )}
             </div>
 
             {/* Username Input */}
-
             <div>
               <label
                 htmlFor="username"
@@ -186,7 +208,6 @@ export default function SignupPage() {
               >
                 Username
               </label>
-
               <input
                 id="username"
                 name="username"
@@ -195,20 +216,18 @@ export default function SignupPage() {
                 required
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
-                // 🔑 UPDATED: Conditional class for red border
                 className={`relative block w-full px-4 py-3 border 
-            ${
-              serverError && errorField === "username"
-                ? "border-red-500 dark:border-red-500 focus:ring-red-500 dark:focus:ring-red-500"
-                : "border-zinc-300 dark:border-zinc-600 focus:ring-zinc-500 dark:focus:ring-zinc-400 transition-all duration-200"
-            }
-            placeholder-zinc-500 dark:placeholder-zinc-400 text-zinc-900 dark:text-white bg-white dark:bg-zinc-700 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-zinc-500 dark:focus:ring-zinc-400 focus:border-transparent`}
+                  ${
+                    serverError && errorField === "username"
+                      ? "border-red-500 dark:border-red-500 focus:ring-red-500 dark:focus:ring-red-500"
+                      : "border-zinc-300 dark:border-zinc-600 focus:ring-zinc-500 dark:focus:ring-zinc-400"
+                  }
+                  placeholder-zinc-500 dark:placeholder-zinc-400 text-zinc-900 dark:text-white bg-white dark:bg-zinc-700 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:border-transparent`}
                 placeholder="Username"
               />
             </div>
 
             {/* Password Input */}
-
             <div>
               <label
                 htmlFor="password"
@@ -216,7 +235,6 @@ export default function SignupPage() {
               >
                 Password
               </label>
-
               <input
                 id="password"
                 name="password"
@@ -226,37 +244,35 @@ export default function SignupPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 className={`relative block w-full px-4 py-3 border 
-            ${
-              serverError && errorField === "password"
-                ? "border-red-500 dark:border-red-500 focus:ring-red-500 dark:focus:ring-red-500"
-                : "border-zinc-300 dark:border-zinc-600 focus:ring-zinc-500 dark:focus:ring-zinc-400 transition-all duration-200"
-            }
-            placeholder-zinc-500 dark:placeholder-zinc-400 text-zinc-900 dark:text-white bg-white dark:bg-zinc-700 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-zinc-500 dark:focus:ring-zinc-400 focus:border-transparent`}
+                  ${
+                    serverError && errorField === "password"
+                      ? "border-red-500 dark:border-red-500 focus:ring-red-500 dark:focus:ring-red-500"
+                      : "border-zinc-300 dark:border-zinc-600 focus:ring-zinc-500 dark:focus:ring-zinc-400"
+                  }
+                  placeholder-zinc-500 dark:placeholder-zinc-400 text-zinc-900 dark:text-white bg-white dark:bg-zinc-700 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:border-transparent`}
                 placeholder="Password"
               />
             </div>
+
+            {/* Error Display */}
             {serverError && (
               <div
                 className="text-center p-4 text-sm text-red-800 rounded-lg bg-red-50 border border-red-300"
                 role="alert"
               >
-                {/* <span className="font-medium">Sign up failed:</span>{" "} */}
                 {serverError}
               </div>
             )}
           </div>
 
           <div>
-            {/* 5. Change formAction to type="submit" */}
             <button
               type="submit"
               disabled={isLoading}
-              className=" cursor-pointer group relative w-full flex justify-center items-center py-3 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-[#3A8F9E] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-zinc-500 dark:focus:ring-zinc-400 transition-all duration-300 ease-in-out shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
+              className="cursor-pointer group relative w-full flex justify-center items-center py-3 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-[#3A8F9E] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-zinc-500 dark:focus:ring-zinc-400 transition-all duration-300 ease-in-out shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
             >
-              {/* ... Loading/Sign up button content ... */}
               {isLoading ? (
                 <>
-                  {/* Spinner SVG */}
                   <svg
                     className="animate-spin -ml-1 mr-2 h-5 w-5 text-white"
                     xmlns="http://www.w3.org/2000/svg"
@@ -301,7 +317,6 @@ export default function SignupPage() {
             </button>
           </div>
 
-          {/* ... Existing Sign in link ... */}
           <div className="text-center pt-4">
             <p className="text-sm text-zinc-600 dark:text-zinc-400">
               Already have an account?{" "}
