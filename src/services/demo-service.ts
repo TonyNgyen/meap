@@ -454,8 +454,24 @@ export async function demoGetRecipes(): Promise<{
 }> {
     const store = useDemoStore.getState();
     const recipes = store.getRecipes();
+    const formatted = recipes.map((recipe) => ({
+        ...recipe,
+        recipe_ingredients: store.getRecipeIngredients(recipe.id).map((ri) => ({
+            ...ri,
+            ingredient: store.getIngredientById(ri.ingredient_id),
+        })),
+    }));
+    const enrichedRecipes = formatted?.map((recipe) => ({
+        ...recipe,
+        recipe_nutrients: store.getRecipeNutrients(recipe.id).map((n) => ({
+            nutrient_key: n.nutrient_key,
+            total_amount: n.total_amount,
+            unit: n.unit,
+        })),
+    })) ?? [];
+    console.log("Demo recipes fetched:", enrichedRecipes);
 
-    return { success: true, recipes };
+    return { success: true, recipes: enrichedRecipes };
 }
 
 // ============================================
@@ -463,7 +479,7 @@ export async function demoGetRecipes(): Promise<{
 // ============================================
 export async function demoSearchIngredients(query: string): Promise<{
     success: boolean;
-    results: any[];
+    ingredients: any[];
 }> {
     const store = useDemoStore.getState();
     const ingredients = store.getIngredients();
@@ -480,7 +496,21 @@ export async function demoSearchIngredients(query: string): Promise<{
         units: store.ingredientUnits.filter((u) => u.ingredient_id === ing.id),
     }));
 
-    return { success: true, results: populatedResults };
+    const enrichedResults = populatedResults?.map((ingredient) => ({
+        ...ingredient,
+        nutrients: store.getIngredientNutrients(ingredient.id).map((n) => {
+            const match = ALL_NUTRIENTS.find(
+                (nutrient) => nutrient.key === n.nutrient_key
+            );
+            return {
+                ...n,
+                display_name: match?.display_name ?? n.nutrient_key,
+                unit: match?.unit ?? '',
+            };
+        }),
+    })) ?? [];
+
+    return { success: true, ingredients: enrichedResults };
 }
 
 // ============================================

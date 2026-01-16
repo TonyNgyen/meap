@@ -19,7 +19,7 @@ const yesterday = new Date(Date.now() - 86400000).toISOString();
 
 // Nutrient Definitions
 export const mockNutrientDefinitions: NutrientDefinition[] = [
-  { key: 'calories', display_name: 'Calories', unit: 'cal', user_id: null },
+  { key: 'calories', display_name: 'Calories', unit: 'kcal', user_id: null },
   { key: 'protein', display_name: 'Protein', unit: 'g', user_id: null },
   { key: 'total_carbs', display_name: 'Total Carbs', unit: 'g', user_id: null },
   { key: 'total_fat', display_name: 'Total Fat', unit: 'g', user_id: null },
@@ -91,33 +91,33 @@ export const mockIngredients: Ingredient[] = [
 // Ingredient Nutrients (per 1 serving as defined in ingredient_units)
 export const mockIngredientNutrients: IngredientNutrient[] = [
   // Chicken Breast (per 112g serving)
-  { id: 'in-1', ingredient_id: 'ing-1', nutrient_key: 'calories', unit: 'cal', amount: 165, created_at: yesterday },
+  { id: 'in-1', ingredient_id: 'ing-1', nutrient_key: 'calories', unit: 'kcal', amount: 165, created_at: yesterday },
   { id: 'in-2', ingredient_id: 'ing-1', nutrient_key: 'protein', unit: 'g', amount: 31, created_at: yesterday },
   { id: 'in-3', ingredient_id: 'ing-1', nutrient_key: 'total_carbs', unit: 'g', amount: 0, created_at: yesterday },
   { id: 'in-4', ingredient_id: 'ing-1', nutrient_key: 'total_fat', unit: 'g', amount: 3.6, created_at: yesterday },
 
   // White Rice (per 45g dry serving)
-  { id: 'in-5', ingredient_id: 'ing-2', nutrient_key: 'calories', unit: 'cal', amount: 160, created_at: yesterday },
+  { id: 'in-5', ingredient_id: 'ing-2', nutrient_key: 'calories', unit: 'kcal', amount: 160, created_at: yesterday },
   { id: 'in-6', ingredient_id: 'ing-2', nutrient_key: 'protein', unit: 'g', amount: 3, created_at: yesterday },
   { id: 'in-7', ingredient_id: 'ing-2', nutrient_key: 'total_carbs', unit: 'g', amount: 36, created_at: yesterday },
   { id: 'in-8', ingredient_id: 'ing-2', nutrient_key: 'total_fat', unit: 'g', amount: 0.3, created_at: yesterday },
   { id: 'in-9', ingredient_id: 'ing-2', nutrient_key: 'dietary_fiber', unit: 'g', amount: 0.6, created_at: yesterday },
 
   // Broccoli (per 91g serving)
-  { id: 'in-10', ingredient_id: 'ing-3', nutrient_key: 'calories', unit: 'cal', amount: 31, created_at: yesterday },
+  { id: 'in-10', ingredient_id: 'ing-3', nutrient_key: 'calories', unit: 'kcal', amount: 31, created_at: yesterday },
   { id: 'in-11', ingredient_id: 'ing-3', nutrient_key: 'protein', unit: 'g', amount: 2.5, created_at: yesterday },
   { id: 'in-12', ingredient_id: 'ing-3', nutrient_key: 'total_carbs', unit: 'g', amount: 6, created_at: yesterday },
   { id: 'in-13', ingredient_id: 'ing-3', nutrient_key: 'dietary_fiber', unit: 'g', amount: 2.4, created_at: yesterday },
   { id: 'in-14', ingredient_id: 'ing-3', nutrient_key: 'total_fat', unit: 'g', amount: 0.3, created_at: yesterday },
 
   // Olive Oil (per 14g / 1 tbsp serving)
-  { id: 'in-15', ingredient_id: 'ing-4', nutrient_key: 'calories', unit: 'cal', amount: 119, created_at: yesterday },
+  { id: 'in-15', ingredient_id: 'ing-4', nutrient_key: 'calories', unit: 'kcal', amount: 119, created_at: yesterday },
   { id: 'in-16', ingredient_id: 'ing-4', nutrient_key: 'total_fat', unit: 'g', amount: 13.5, created_at: yesterday },
   { id: 'in-17', ingredient_id: 'ing-4', nutrient_key: 'protein', unit: 'g', amount: 0, created_at: yesterday },
   { id: 'in-18', ingredient_id: 'ing-4', nutrient_key: 'total_carbs', unit: 'g', amount: 0, created_at: yesterday },
 
   // Eggs (per 50g / 1 large egg)
-  { id: 'in-19', ingredient_id: 'ing-5', nutrient_key: 'calories', unit: 'cal', amount: 72, created_at: yesterday },
+  { id: 'in-19', ingredient_id: 'ing-5', nutrient_key: 'calories', unit: 'kcal', amount: 72, created_at: yesterday },
   { id: 'in-20', ingredient_id: 'ing-5', nutrient_key: 'protein', unit: 'g', amount: 6, created_at: yesterday },
   { id: 'in-21', ingredient_id: 'ing-5', nutrient_key: 'total_fat', unit: 'g', amount: 5, created_at: yesterday },
   { id: 'in-22', ingredient_id: 'ing-5', nutrient_key: 'total_carbs', unit: 'g', amount: 0.6, created_at: yesterday },
@@ -189,7 +189,7 @@ export const mockRecipeIngredients: RecipeIngredient[] = [
 export const mockRecipeNutrients: RecipeNutrient[] = [
   // Chicken & Rice Bowl (total for 4 servings)
   // 4×165 + 4×160 + 4×31 + 2×119 = 1660 calories
-  { recipe_id: 'rec-1', nutrient_key: 'calories', unit: 'cal', total_amount: 1660 },
+  { recipe_id: 'rec-1', nutrient_key: 'calories', unit: 'kcal', total_amount: 1660 },
   { recipe_id: 'rec-1', nutrient_key: 'protein', unit: 'g', total_amount: 146 }, // 4×31 + 4×3 + 4×2.5
   { recipe_id: 'rec-1', nutrient_key: 'total_carbs', unit: 'g', total_amount: 168 }, // 4×36 + 4×6
   { recipe_id: 'rec-1', nutrient_key: 'total_fat', unit: 'g', total_amount: 42.6 }, // 4×3.6 + 4×0.3 + 4×0.3 + 2×13.5
@@ -197,7 +197,7 @@ export const mockRecipeNutrients: RecipeNutrient[] = [
 
   // Scrambled Eggs (total for 1 serving)
   // 2×72 + 0.5×119 = 203.5 calories
-  { recipe_id: 'rec-2', nutrient_key: 'calories', unit: 'cal', total_amount: 203.5 },
+  { recipe_id: 'rec-2', nutrient_key: 'calories', unit: 'kcal', total_amount: 203.5 },
   { recipe_id: 'rec-2', nutrient_key: 'protein', unit: 'g', total_amount: 12 }, // 2×6
   { recipe_id: 'rec-2', nutrient_key: 'total_fat', unit: 'g', total_amount: 16.75 }, // 2×5 + 0.5×13.5
   { recipe_id: 'rec-2', nutrient_key: 'total_carbs', unit: 'g', total_amount: 1.2 }, // 2×0.6
@@ -259,13 +259,13 @@ export const mockFoodLogs: FoodLog[] = [
 // Food Log Nutrients
 export const mockFoodLogNutrients: FoodLogNutrient[] = [
   // Scrambled Eggs (fl-1) - 1 serving
-  { id: 'fln-1', food_log_id: 'fl-1', nutrient_key: 'calories', amount: 203.5, unit: 'cal' },
+  { id: 'fln-1', food_log_id: 'fl-1', nutrient_key: 'calories', amount: 203.5, unit: 'kcal' },
   { id: 'fln-2', food_log_id: 'fl-1', nutrient_key: 'protein', amount: 12, unit: 'g' },
   { id: 'fln-3', food_log_id: 'fl-1', nutrient_key: 'total_fat', amount: 16.75, unit: 'g' },
   { id: 'fln-4', food_log_id: 'fl-1', nutrient_key: 'total_carbs', amount: 1.2, unit: 'g' },
 
   // Chicken & Rice Bowl (fl-2) - 1 serving = 1/4 of recipe
-  { id: 'fln-5', food_log_id: 'fl-2', nutrient_key: 'calories', amount: 415, unit: 'cal' },
+  { id: 'fln-5', food_log_id: 'fl-2', nutrient_key: 'calories', amount: 415, unit: 'kcal' },
   { id: 'fln-6', food_log_id: 'fl-2', nutrient_key: 'protein', amount: 36.5, unit: 'g' },
   { id: 'fln-7', food_log_id: 'fl-2', nutrient_key: 'total_carbs', amount: 42, unit: 'g' },
   { id: 'fln-8', food_log_id: 'fl-2', nutrient_key: 'total_fat', amount: 10.65, unit: 'g' },
