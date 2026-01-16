@@ -1,9 +1,8 @@
-import React from 'react'
+import RecipePage from "@/app/(authenticated)/recipes/page";
+import React from "react";
 
-function RecipePage() {
-  return (
-    <div>RecipePage</div>
-  )
+function DemoRecipePage() {
+  return <RecipePage />;
 }
 
-export default RecipePage
+export default DemoRecipePage;

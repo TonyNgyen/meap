@@ -438,6 +438,7 @@ export async function demoGetIngredients(): Promise<{
                 return {
                     ...n,
                     display_name: match?.display_name ?? n.nutrient_key,
+                    unit: match?.unit ?? '',
                 };
             }),
         })) ?? [];
