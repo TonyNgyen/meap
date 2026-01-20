@@ -2,6 +2,7 @@
 
 import AddLogForm from "@/components/add-log-form";
 import React, { useState, useEffect } from "react";
+import { useFetch } from "@/providers/demo-provider";
 
 type Ingredient = { id: string; name: string; brand: string | null };
 type Recipe = { id: string; name: string };
@@ -19,17 +20,18 @@ type FoodLog = {
   }>;
 };
 
-export default function FoodLogger() {
+export default function FoodLogPage() {
   const [selectedDate, setSelectedDate] = useState(
     new Date().toISOString().split("T")[0]
   );
   const [foodLogs, setFoodLogs] = useState<FoodLog[]>([]);
   const [showLogs, setShowLogs] = useState(false);
+  const { fetch: customFetch } = useFetch();
 
   const fetchFoodLogs = async (date: string) => {
-    const res = await fetch(`/api/food-logs?date=${date}`);
+    const res = await customFetch(`/api/food-logs?date=${date}`);
     const data = await res.json();
-    console.log(data)
+    console.log(data);
     if (data.success) setFoodLogs(data.food_logs || []);
   };
 

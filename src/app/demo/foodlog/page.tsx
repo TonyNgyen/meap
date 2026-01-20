@@ -1,9 +1,8 @@
-import React from 'react'
+import FoodLogPage from "@/app/(authenticated)/foodlog/page";
+import React from "react";
 
-function FoodLogPage() {
-  return (
-    <div>FoodLogPage</div>
-  )
+function DemoFoodLogPage() {
+  return <FoodLogPage />;
 }
 
-export default FoodLogPage
+export default DemoFoodLogPage;
