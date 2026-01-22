@@ -258,7 +258,7 @@ export async function demoAddFoodLog(payload: {
     recipe_id?: string | null;
     quantity: number;
     unit: string;
-    log_datetime: string;
+    logged_at: string;
     meal_type?: string;
 }): Promise<{
     success: boolean;
@@ -288,7 +288,7 @@ export async function demoAddFoodLog(payload: {
         recipe_id: payload.recipe_id || null,
         quantity: payload.quantity,
         unit: payload.unit,
-        log_datetime: payload.log_datetime,
+        log_datetime: payload.logged_at,
         meal_type: payload.meal_type || null,
     });
 
@@ -410,6 +410,13 @@ export async function demoUpdateGoal(payload: {
     const updatedGoal = store.goals.find((g) => g.id === payload.id);
 
     return { success: true, goal: updatedGoal };
+}
+
+// Demo API: Delete Goal
+export async function demoDeleteGoal(id: string): Promise<{ success: boolean }> {
+    const store = useDemoStore.getState();
+    store.deleteGoal(id);
+    return { success: true };
 }
 
 // Demo API: Get Ingredients

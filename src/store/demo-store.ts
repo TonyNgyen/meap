@@ -357,6 +357,9 @@ export const useDemoStore = create<DemoState>((set, get) => ({
 
     // Reset
     resetDemo: () => {
-        set(DEMO_MOCK_DATA);
+        set(() => ({
+            ...DEMO_MOCK_DATA,
+            demoUserId: 'demo-user-123',
+        }));
     },
 }));

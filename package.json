@@ -7,7 +7,8 @@
     "build": "next build --turbopack",
     "start": "next start",
     "lint": "eslint",
-    "fetch:usda": "node --loader ts-node/esm scripts/fetchUsdaFoods.ts"
+    "fetch:usda": "node --loader ts-node/esm scripts/fetchUsdaFoods.ts",
+    "test": "vitest run"
   },
   "dependencies": {
     "@supabase/ssr": "^0.7.0",
@@ -32,7 +33,8 @@
     "eslint-config-next": "15.5.2",
     "tailwindcss": "^4.1.12",
     "ts-node": "^10.9.2",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "vitest": "^2.1.4"
   },
   "type": "module"
 }

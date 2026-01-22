@@ -1,7 +1,7 @@
 // src/providers/demo-provider.tsx
 "use client";
 
-import React, { createContext, useContext } from "react";
+import React, { createContext, useCallback, useContext, useMemo } from "react";
 
 // ============================================
 // CONTEXT SETUP
@@ -43,22 +43,20 @@ export function useDemo() {
 export function useFetch() {
   const { isDemo } = useDemo();
 
-  return {
+  // 1. Memoize the fetch function so its identity is stable
+  const customFetch = useCallback(async (url: string, options?: RequestInit) => {
+    if (isDemo) {
+      return handleDemoFetch(url, options);
+    }
+    return fetch(url, options);
+  }, [isDemo]); // Only changes if isDemo changes
+
+  // 2. Memoize the return object so the hook's return value is stable
+  return useMemo(() => ({
     isDemo,
-
-    // Custom fetch that routes to demo services in demo mode
-    fetch: async (url: string, options?: RequestInit) => {
-      if (isDemo) {
-        // Route to demo services
-        return handleDemoFetch(url, options);
-      }
-
-      // Normal fetch for production
-      return fetch(url, options);
-    },
-  };
+    fetch: customFetch,
+  }), [isDemo, customFetch]);
 }
-
 // ============================================
 // DEMO FETCH HANDLER
 // ============================================
@@ -79,6 +77,7 @@ async function handleDemoFetch(url: string, options?: RequestInit) {
     demoGetRecipes,
     demoAddRecipe,
     demoSearchRecipes,
+    demoDeleteGoal,
   } = await import("@/services/demo-service");
 
   const method = options?.method || "GET";
@@ -119,6 +118,10 @@ async function handleDemoFetch(url: string, options?: RequestInit) {
   // GOALS ROUTES
   // ============================================
   else if (url.startsWith("/api/goals")) {
+    const urlObj = new URL(url, "http://localhost");
+    const parts = urlObj.pathname.split("/").filter(Boolean);
+    const maybeId = parts.length > 2 ? parts[2] : null;
+
     if (method === "GET") {
       const data = await demoGetGoals();
       return createMockResponse(data);
@@ -127,6 +130,9 @@ async function handleDemoFetch(url: string, options?: RequestInit) {
       return createMockResponse(data);
     } else if (method === "PUT") {
       const data = await demoUpdateGoal(body);
+      return createMockResponse(data);
+    } else if (method === "DELETE" && maybeId) {
+      const data = await demoDeleteGoal(maybeId);
       return createMockResponse(data);
     }
   }

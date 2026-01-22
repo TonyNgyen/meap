@@ -47,7 +47,6 @@ export default function SidebarNav({ isAdmin, isDemo }: SidebarNavProps) {
 
   return (
     <aside className="w-64 h-screen border-r border-r-zinc-200 dark:border-r-zinc-700 flex flex-col">
-      {/* Logo/Brand */}
       <div className="p-6 border-b border-b-zinc-200 dark:border-b-zinc-700">
         {isDemo ? (
           <div className="flex gap-4 items-center">
@@ -74,7 +73,6 @@ export default function SidebarNav({ isAdmin, isDemo }: SidebarNavProps) {
         )}
       </div>
 
-      {/* Navigation */}
       <nav className="flex-1 p-4">
         <ul className="space-y-2">
           {navItems.map(({ href, label, icon: Icon }) => {

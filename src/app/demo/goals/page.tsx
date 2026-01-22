@@ -1,9 +1,5 @@
-import React from 'react'
+import GoalsPage from "@/app/(authenticated)/goals/page";
 
-function GoalPage() {
-  return (
-    <div>GoalPage</div>
-  )
+export default function DemoGoalsPage() {
+  return <GoalsPage />;
 }
-
-export default GoalPage
