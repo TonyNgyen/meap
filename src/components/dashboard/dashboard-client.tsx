@@ -6,8 +6,9 @@ import InventoryCard from "./inventory-card";
 import { LuUtensils, LuBookOpen, LuCarrot, LuBoxes } from "react-icons/lu";
 import Link from "next/link";
 import AddLogModal from "../add-log-modal";
-import AddInventoryModal from "../add-inventory-modal"; // Import the inventory modal
+import AddInventoryModal from "../add-inventory-modal";
 import { logout } from "@/app/(authenticated)/logout/actions";
+import { useFetch } from "@/providers/demo-provider"; // ← ADD THIS
 
 type NutrientOverviewHandle = {
   refresh: () => Promise<void>;
@@ -66,6 +67,9 @@ export default function DashboardClient({
   const [isLogModalOpen, setIsLogModalOpen] = useState(false);
   const [isInventoryModalOpen, setIsInventoryModalOpen] = useState(false);
 
+  // ← ADD THIS
+  const { fetch: customFetch } = useFetch();
+
   const nutrientOverviewRef = useRef<NutrientOverviewHandle>(null);
   const recentMealsRef = useRef<RecentMealsHandle>(null);
   const inventoryRef = useRef<InventoryHandle>(null);
@@ -83,7 +87,7 @@ export default function DashboardClient({
   const refreshRecentMeals = async () => {
     console.log("Refreshing recent meals...");
     try {
-      const res = await fetch("/api/recent-meals");
+      const res = await customFetch("/api/recent-meals"); // ← CHANGED
       const data = await res.json();
       if (data.success) {
         setRecentMeals(data.meals);
@@ -95,7 +99,7 @@ export default function DashboardClient({
 
   const refreshInventory = async () => {
     try {
-      const res = await fetch("/api/inventory");
+      const res = await customFetch("/api/inventory"); // ← CHANGED
       const data = await res.json();
       if (data.success) {
         setInventoryItems(data.inventory);

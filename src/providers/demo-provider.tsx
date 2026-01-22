@@ -1,7 +1,7 @@
 // src/providers/demo-provider.tsx
 "use client";
 
-import React, { createContext, useCallback, useContext, useMemo } from "react";
+import React, { createContext, useContext } from "react";
 
 // ============================================
 // CONTEXT SETUP
@@ -43,20 +43,22 @@ export function useDemo() {
 export function useFetch() {
   const { isDemo } = useDemo();
 
-  // 1. Memoize the fetch function so its identity is stable
-  const customFetch = useCallback(async (url: string, options?: RequestInit) => {
-    if (isDemo) {
-      return handleDemoFetch(url, options);
-    }
-    return fetch(url, options);
-  }, [isDemo]); // Only changes if isDemo changes
-
-  // 2. Memoize the return object so the hook's return value is stable
-  return useMemo(() => ({
+  return {
     isDemo,
-    fetch: customFetch,
-  }), [isDemo, customFetch]);
+
+    // Custom fetch that routes to demo services in demo mode
+    fetch: async (url: string, options?: RequestInit) => {
+      if (isDemo) {
+        // Route to demo services
+        return handleDemoFetch(url, options);
+      }
+
+      // Normal fetch for production
+      return fetch(url, options);
+    },
+  };
 }
+
 // ============================================
 // DEMO FETCH HANDLER
 // ============================================
@@ -77,7 +79,7 @@ async function handleDemoFetch(url: string, options?: RequestInit) {
     demoGetRecipes,
     demoAddRecipe,
     demoSearchRecipes,
-    demoDeleteGoal,
+    demoGetRecentMeals,
   } = await import("@/services/demo-service");
 
   const method = options?.method || "GET";
@@ -107,6 +109,7 @@ async function handleDemoFetch(url: string, options?: RequestInit) {
         urlObj.searchParams.get("date") ||
         new Date().toISOString().split("T")[0];
       const data = await demoGetFoodLogs(date);
+      console.log('########', date, data);
       return createMockResponse(data);
     } else if (method === "POST") {
       const data = await demoAddFoodLog(body);
@@ -118,10 +121,6 @@ async function handleDemoFetch(url: string, options?: RequestInit) {
   // GOALS ROUTES
   // ============================================
   else if (url.startsWith("/api/goals")) {
-    const urlObj = new URL(url, "http://localhost");
-    const parts = urlObj.pathname.split("/").filter(Boolean);
-    const maybeId = parts.length > 2 ? parts[2] : null;
-
     if (method === "GET") {
       const data = await demoGetGoals();
       return createMockResponse(data);
@@ -130,9 +129,6 @@ async function handleDemoFetch(url: string, options?: RequestInit) {
       return createMockResponse(data);
     } else if (method === "PUT") {
       const data = await demoUpdateGoal(body);
-      return createMockResponse(data);
-    } else if (method === "DELETE" && maybeId) {
-      const data = await demoDeleteGoal(maybeId);
       return createMockResponse(data);
     }
   }
@@ -171,6 +167,16 @@ async function handleDemoFetch(url: string, options?: RequestInit) {
       return createMockResponse(data);
     } else if (method === "POST") {
       const data = await demoAddRecipe(body);
+      return createMockResponse(data);
+    }
+  }
+
+  // ============================================
+  // RECENT MEALS ROUTE
+  // ============================================
+  else if (url.startsWith("/api/recent-meals")) {
+    if (method === "GET") {
+      const data = await demoGetRecentMeals();
       return createMockResponse(data);
     }
   }

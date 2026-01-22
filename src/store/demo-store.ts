@@ -100,6 +100,16 @@ type DemoState = {
     addFoodLogNutrients: (nutrients: Omit<FoodLogNutrient, 'id'>[]) => void;
     getFoodLogsByDate: (date: string) => FoodLog[];
     getFoodLogNutrients: (foodLogId: string) => FoodLogNutrient[];
+    getRecentMeals: () => Array<{
+        id: string;
+        log_datetime: string;
+        ingredient: any | null;
+        recipe: any | null;
+        nutrients: Array<{
+            nutrient_key: string;
+            amount: number;
+        }>;
+    }>;
 
     // Actions - Goals
     addGoal: (goal: Omit<Goal, 'id' | 'created_at' | 'updated_at' | 'user_id'>) => Goal;
@@ -297,6 +307,22 @@ export const useDemoStore = create<DemoState>((set, get) => ({
         return newLog;
     },
 
+    getRecentMeals: () => {
+        const logs = get().foodLogs
+            .sort((a, b) => new Date(b.log_datetime).getTime() - new Date(a.log_datetime).getTime())
+            .slice(0, 5);
+
+        return logs.map((log) => {
+            const nutrients = get().getFoodLogNutrients(log.id);
+            return {
+                ...log,
+                ingredient: log.ingredient_id ? get().getIngredientById(log.ingredient_id) : null,
+                recipe: log.recipe_id ? get().getRecipeById(log.recipe_id) : null,
+                nutrients,
+            };
+        });
+    },
+
     addFoodLogNutrients: (nutrients) => {
         const newNutrients: FoodLogNutrient[] = nutrients.map((n) => ({
             ...n,
@@ -312,6 +338,8 @@ export const useDemoStore = create<DemoState>((set, get) => ({
         startOfDay.setHours(0, 0, 0, 0);
         const endOfDay = new Date(date);
         endOfDay.setHours(23, 59, 59, 999);
+
+        console.log("FOOD LOGS", get().foodLogs);
 
         return get().foodLogs.filter((log) => {
             const logDate = new Date(log.log_datetime);
