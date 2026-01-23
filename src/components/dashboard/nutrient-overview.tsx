@@ -347,17 +347,6 @@ const NutrientOverview = forwardRef(
                       </button>
                     ))}
                 </nav>
-                <button
-                  onClick={async () => {
-                    const res = await customFetch(
-                      `/api/food-logs?date=${new Date().toISOString().split("T")[0]}`,
-                    );
-                    const data = await res.json();
-                    console.log("Goals data:", data);
-                  }}
-                >
-                  Debug
-                </button>
               </div>
 
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
