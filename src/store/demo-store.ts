@@ -110,6 +110,7 @@ type DemoState = {
             amount: number;
         }>;
     }>;
+    getFoodLogs: () => FoodLog[];
 
     // Actions - Goals
     addGoal: (goal: Omit<Goal, 'id' | 'created_at' | 'updated_at' | 'user_id'>) => Goal;
@@ -338,14 +339,20 @@ export const useDemoStore = create<DemoState>((set, get) => ({
         startOfDay.setHours(0, 0, 0, 0);
         const endOfDay = new Date(date);
         endOfDay.setHours(23, 59, 59, 999);
-
-        console.log("FOOD LOGS", get().foodLogs);
-
+        console.log("Before", get().foodLogs);
+        console.log("After", get().foodLogs.filter((log) => {
+            console.log("Log date:", log.created_at);
+            const logDate = new Date(log.created_at);
+            // console.log(logDate, startOfDay, endOfDay);
+            return logDate >= startOfDay && logDate <= endOfDay;
+        }))
         return get().foodLogs.filter((log) => {
-            const logDate = new Date(log.log_datetime);
+            const logDate = new Date(log.created_at);
             return logDate >= startOfDay && logDate <= endOfDay;
         });
     },
+
+    getFoodLogs: () => get().foodLogs,
 
     getFoodLogNutrients: (foodLogId) =>
         get().foodLogNutrients.filter((n) => n.food_log_id === foodLogId),

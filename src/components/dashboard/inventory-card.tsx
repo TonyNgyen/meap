@@ -129,7 +129,7 @@ const InventoryCard = forwardRef<
       ) : inventoryItems.length === 0 ? (
         <EmptyInventoryState />
       ) : (
-        <div className="space-y-2">
+        <div className="space-y-2 max-h-[232px] overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-zinc-300 dark:scrollbar-thumb-zinc-600">
           {inventoryItems.map((item) => (
             <InventoryItem
               key={item.id}

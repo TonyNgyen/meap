@@ -109,7 +109,7 @@ async function handleDemoFetch(url: string, options?: RequestInit) {
         urlObj.searchParams.get("date") ||
         new Date().toISOString().split("T")[0];
       const data = await demoGetFoodLogs(date);
-      console.log('########', date, data);
+      console.log("Demo food logs data:", data);
       return createMockResponse(data);
     } else if (method === "POST") {
       const data = await demoAddFoodLog(body);

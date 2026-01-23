@@ -3,6 +3,7 @@
 
 import { useDemoStore } from '@/store/demo-store';
 import type { PopulatedInventoryItem, PopulatedFoodLog } from '@/types';
+import { get } from 'http';
 
 // ============================================
 // HELPER: Calculate Ingredient Nutrients
@@ -226,7 +227,6 @@ export async function demoGetFoodLogs(date: string): Promise<{
 }> {
     const store = useDemoStore.getState();
     const logs = store.getFoodLogsByDate(date);
-    console.log('Demo food logs for date', date, logs);
 
     const populated: PopulatedFoodLog[] = logs.map((log) => {
         const nutrients = store.getFoodLogNutrients(log.id);
@@ -373,7 +373,8 @@ export async function demoAddFoodLog(payload: {
             depleted_items: depletedItems
         };
     }
-
+    console.log("SUCCESS");
+    console.log("Food logs:", store.getFoodLogs());
     return { success: true };
 }
 

@@ -68,7 +68,7 @@ export default function DashboardClient({
   const [isInventoryModalOpen, setIsInventoryModalOpen] = useState(false);
 
   // ← ADD THIS
-  const { fetch: customFetch } = useFetch();
+  const { fetch: customFetch, isDemo } = useFetch();
 
   const nutrientOverviewRef = useRef<NutrientOverviewHandle>(null);
   const recentMealsRef = useRef<RecentMealsHandle>(null);
@@ -159,16 +159,31 @@ export default function DashboardClient({
           </div>
           <div className="font-medium">Add Inventory</div>
         </button>
-        <QuickAction
-          icon={<LuBookOpen className="w-7 h-7" />}
-          title="Recipes"
-          href="/recipes"
-        />
+        {isDemo ? (
+          <QuickAction
+            icon={<LuUtensils className="w-7 h-7" />}
+            title="Recipes"
+            href="/demo/recipes"
+          />
+        ) : (
+          <QuickAction
+            icon={<LuBookOpen className="w-7 h-7" />}
+            title="Recipes"
+            href="/recipes"
+          />
+        )}
+        {isDemo ? (
         <QuickAction
           icon={<LuCarrot className="w-7 h-7" />}
           title="Ingredients"
-          href="/ingredients"
+          href="/demo/ingredients"
         />
+        ) : (
+          <QuickAction
+            icon={<LuCarrot className="w-7 h-7" />}
+            title="Ingredients"
+            href="/ingredients"
+        />)}
       </div>
 
       {/* Two Column Layout */}

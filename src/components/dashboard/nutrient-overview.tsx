@@ -51,7 +51,6 @@ type Ingredient = { id: string; name: string; brand: string | null };
 type Recipe = { id: string; name: string };
 
 function NutrientCard({ title, value, subtitle, color }: NutrientCardProps) {
-
   return (
     <div className="bg-white dark:bg-zinc-800 rounded-xl shadow-sm border border-zinc-200 dark:border-zinc-700 p-4">
       <div className={`text-2xl font-bold ${colorClasses[color]}`}>{value}</div>
@@ -101,7 +100,6 @@ const NutrientOverview = forwardRef(
     const fetchFoodLogs = async (date: string) => {
       const res = await customFetch(`/api/food-logs?date=${date}`);
       const data = await res.json();
-      console.log(data)
       if (data.success) setFoodLogs(data.food_logs || []);
     };
 
@@ -349,6 +347,17 @@ const NutrientOverview = forwardRef(
                       </button>
                     ))}
                 </nav>
+                <button
+                  onClick={async () => {
+                    const res = await customFetch(
+                      `/api/food-logs?date=${new Date().toISOString().split("T")[0]}`,
+                    );
+                    const data = await res.json();
+                    console.log("Goals data:", data);
+                  }}
+                >
+                  Debug
+                </button>
               </div>
 
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
