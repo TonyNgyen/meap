@@ -62,7 +62,7 @@ export default function IngredientsPage() {
       if (data.error) {
         console.error("Error fetching ingredients:", data.error);
       } else {
-        // Reshape nutrients for easier rendering
+        console.log("Raw fetched data:", data.ingredients);
         const formatted = data.ingredients.map((ing: Ingredient) => ({
           id: ing.id,
           name: ing.name,

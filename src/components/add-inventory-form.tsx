@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import { useFetch } from "@/providers/demo-provider"; // ← ADD THIS IMPORT
+import { useFetch } from "@/providers/demo-provider";
 
 type IngredientUnit = {
   id: string;
@@ -50,16 +50,14 @@ export default function AddInventoryForm({
   );
   const [availableUnits, setAvailableUnits] = useState<IngredientUnit[]>([]);
 
-  // ← ADD THIS LINE
+
   const { fetch: customFetch } = useFetch();
 
-  // ✅ Search ingredients
   useEffect(() => {
     if (ingredientQuery.length < 2) return setIngredientResults([]);
     const timeout = setTimeout(async () => {
       try {
         const res = await customFetch(
-          // ← CHANGED: fetch → customFetch
           `/api/ingredients/search?q=${encodeURIComponent(ingredientQuery)}`
         );
         const data = await res.json();
@@ -71,14 +69,13 @@ export default function AddInventoryForm({
       }
     }, 300);
     return () => clearTimeout(timeout);
-  }, [ingredientQuery]); // ← ADDED customFetch to deps
+  }, [ingredientQuery]);
 
-  // ✅ Search recipes
   useEffect(() => {
     if (recipeQuery.length < 2) return setRecipeResults([]);
     const timeout = setTimeout(async () => {
       try {
-        const res = await customFetch(`/api/recipes/search?q=${recipeQuery}`); // ← CHANGED
+        const res = await customFetch(`/api/recipes/search?q=${recipeQuery}`);
         const data = await res.json();
         console.log("Recipe search data:", data);
         if (data.success) setRecipeResults(data.results || data.recipes);
@@ -87,7 +84,7 @@ export default function AddInventoryForm({
       }
     }, 300);
     return () => clearTimeout(timeout);
-  }, [recipeQuery]); // ← ADDED customFetch to deps
+  }, [recipeQuery]);
 
   useEffect(() => {
     if (selectedIngredient) {
@@ -171,7 +168,6 @@ export default function AddInventoryForm({
         };
 
         const res = await customFetch("/api/inventory", {
-          // ← CHANGED
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload),
@@ -197,7 +193,6 @@ export default function AddInventoryForm({
         };
 
         const res = await customFetch("/api/inventory", {
-          // ← CHANGED
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload),

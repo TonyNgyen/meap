@@ -8,7 +8,7 @@ import React, {
 } from "react";
 import { ALL_NUTRIENTS_DICT } from "@/constants/constants";
 import AddLogForm from "../add-log-form";
-import { useFetch } from "@/providers/demo-provider"; // ← ADD THIS
+import { useFetch } from "@/providers/demo-provider";
 
 type FoodLog = {
   id: string;
@@ -93,7 +93,13 @@ const NutrientOverview = forwardRef(
     // const [selectedDate, setSelectedDate] = useState(
     //   new Date().toISOString().split("T")[0]
     // );
-    const selectedDate = new Date().toISOString().split("T")[0];
+    const now = new Date();
+    const selectedDate =
+      now.getFullYear() +
+      "-" +
+      String(now.getMonth() + 1).padStart(2, "0") +
+      "-" +
+      String(now.getDate()).padStart(2, "0");
     const [isLoading, setIsLoading] = useState(true);
     const { fetch: customFetch } = useFetch();
 
@@ -162,9 +168,7 @@ const NutrientOverview = forwardRef(
         const consumed = totals[key]?.amount || 0;
         const unit = totals[key]?.unit || "g";
         const target = goal?.target_amount || null;
-        const percent = target
-          ? Math.min((consumed / target) * 100, 100)
-          : null;
+        const percent = target ? (consumed / target) * 100 : null;
 
         return {
           nutrient_key: key,

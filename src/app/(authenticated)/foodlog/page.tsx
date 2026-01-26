@@ -45,6 +45,10 @@ export default function FoodLogPage() {
     fetchFoodLogs(selectedDate);
   }, [selectedDate]);
 
+  useEffect(() => {
+    fetchFoodLogs(selectedDate);
+  }, []);
+
   const getTotalNutrients = () => {
     const totals: { [key: string]: { amount: number; unit: string } } = {};
 

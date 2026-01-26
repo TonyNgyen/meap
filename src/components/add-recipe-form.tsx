@@ -126,6 +126,7 @@ export default function AddRecipeForm({
         `/api/ingredients/search?q=${encodeURIComponent(query)}`
       );
       const data = await res.json();
+      console.log("Search data:", data);
 
       if (data.success) {
         console.log("Search results:", data.ingredients);

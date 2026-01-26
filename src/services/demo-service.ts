@@ -1,15 +1,12 @@
 // src/services/demo-service.ts
 // This file replicates your API/RPC logic for demo mode
 
+import { ALL_NUTRIENTS_DICT } from '@/constants/constants';
 import { useDemoStore } from '@/store/demo-store';
 import type { PopulatedInventoryItem, PopulatedFoodLog } from '@/types';
 import { get } from 'http';
 
-// ============================================
-// HELPER: Calculate Ingredient Nutrients
-// ============================================
-// Calculates nutrients for a specific quantity of an ingredient
-// Handles unit conversions (servings, grams, cups, etc.)
+
 export function calculateIngredientNutrients(
     ingredientId: string,
     quantity: number,
@@ -440,7 +437,13 @@ export async function demoGetIngredients(): Promise<{
     const store = useDemoStore.getState();
     const ingredients = store.getIngredients();
 
-    return { success: true, ingredients };
+    const populated = ingredients.map((ing) => ({
+        ...ing,
+        units: store.ingredientUnits.filter((u) => u.ingredient_id === ing.id),
+        nutrients: store.getIngredientNutrients(ing.id).map((n) => ({ ...n, display_name: ALL_NUTRIENTS_DICT[n.nutrient_key]?.display_name || n.nutrient_key })),
+    }));
+
+    return { success: true, ingredients: populated };
 }
 
 // Demo API: Get Recipes
@@ -451,7 +454,17 @@ export async function demoGetRecipes(): Promise<{
     const store = useDemoStore.getState();
     const recipes = store.getRecipes();
 
-    return { success: true, recipes };
+    // Populate each recipe with its nutrients
+    const populatedRecipes = recipes.map((recipe) => ({
+        ...recipe,
+        recipe_nutrients: store.getRecipeNutrients(recipe.id),
+        recipe_ingredients: store.getRecipeIngredients(recipe.id).map((ri) => ({
+            ...ri,
+            ingredient: store.getIngredientById(ri.ingredient_id),
+        })),
+    }));
+
+    return { success: true, recipes: populatedRecipes };
 }
 
 // ============================================
@@ -459,7 +472,7 @@ export async function demoGetRecipes(): Promise<{
 // ============================================
 export async function demoSearchIngredients(query: string): Promise<{
     success: boolean;
-    results: any[];
+    ingredients: any[];
 }> {
     const store = useDemoStore.getState();
     const ingredients = store.getIngredients();
@@ -474,9 +487,10 @@ export async function demoSearchIngredients(query: string): Promise<{
     const populatedResults = results.map((ing) => ({
         ...ing,
         units: store.ingredientUnits.filter((u) => u.ingredient_id === ing.id),
+        nutrients: store.getIngredientNutrients(ing.id),
     }));
 
-    return { success: true, results: populatedResults };
+    return { success: true, ingredients: populatedResults };
 }
 
 // ============================================

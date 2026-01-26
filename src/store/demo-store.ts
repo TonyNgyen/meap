@@ -296,11 +296,19 @@ export const useDemoStore = create<DemoState>((set, get) => ({
 
     // Food Logs
     addFoodLog: (log) => {
+        const now = new Date();
+        const today =
+            now.getFullYear() +
+            "-" +
+            String(now.getMonth() + 1).padStart(2, "0") +
+            "-" +
+            String(now.getDate()).padStart(2, "0");
         const newLog: FoodLog = {
             ...log,
             id: `food-log-${Date.now()}`,
             user_id: get().demoUserId,
-            created_at: new Date().toISOString(),
+            log_datetime: today,
+            created_at: today,
         };
         set((state) => ({
             foodLogs: [...state.foodLogs, newLog],
@@ -335,21 +343,20 @@ export const useDemoStore = create<DemoState>((set, get) => ({
     },
 
     getFoodLogsByDate: (date) => {
-        const startOfDay = new Date(date);
-        startOfDay.setHours(0, 0, 0, 0);
-        const endOfDay = new Date(date);
-        endOfDay.setHours(23, 59, 59, 999);
-        console.log("Before", get().foodLogs);
-        console.log("After", get().foodLogs.filter((log) => {
-            console.log("Log date:", log.created_at);
-            const logDate = new Date(log.created_at);
-            // console.log(logDate, startOfDay, endOfDay);
-            return logDate >= startOfDay && logDate <= endOfDay;
-        }))
-        return get().foodLogs.filter((log) => {
-            const logDate = new Date(log.created_at);
-            return logDate >= startOfDay && logDate <= endOfDay;
-        });
+        // FIX DATES
+        // console.log("Getting food logs for date:", date);
+        // const startOfDay = new Date(date);
+        // console.log("Initial startOfDay:", startOfDay);
+        // startOfDay.setHours(0, 0, 0, 0);
+        // const endOfDay = new Date(date);
+        // endOfDay.setHours(23, 59, 59, 999);
+        // get().foodLogs.map((log) => { console.log(new Date(log.created_at)); });
+        // return get().foodLogs.filter((log) => {
+        //     const logDate = new Date(log.created_at);
+        //     return logDate >= startOfDay && logDate <= endOfDay;
+        // });
+
+        return get().foodLogs
     },
 
     getFoodLogs: () => get().foodLogs,

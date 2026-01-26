@@ -14,8 +14,12 @@ import type {
 } from '@/types';
 
 const DEMO_USER_ID = 'demo-user-123';
-const now = new Date().toISOString();
-const yesterday = new Date(Date.now() - 86400000).toISOString();
+const now = new Date();
+const today =
+  now.getFullYear() + "-" +
+  String(now.getMonth() + 1).padStart(2, "0") + "-" +
+  String(now.getDate()).padStart(2, "0");
+
 
 // Nutrient Definitions
 export const mockNutrientDefinitions: NutrientDefinition[] = [
@@ -37,7 +41,7 @@ export const mockIngredients: Ingredient[] = [
     name: 'Chicken Breast',
     brand: 'Organic Valley',
     servings_per_container: 4,
-    created_at: yesterday,
+    created_at: today,
     is_verified: true,
     verified_by: null,
     verified_at: null,
@@ -48,7 +52,7 @@ export const mockIngredients: Ingredient[] = [
     name: 'White Rice',
     brand: null,
     servings_per_container: null,
-    created_at: yesterday,
+    created_at: today,
     is_verified: true,
     verified_by: null,
     verified_at: null,
@@ -59,7 +63,7 @@ export const mockIngredients: Ingredient[] = [
     name: 'Broccoli',
     brand: null,
     servings_per_container: null,
-    created_at: yesterday,
+    created_at: today,
     is_verified: true,
     verified_by: null,
     verified_at: null,
@@ -70,7 +74,7 @@ export const mockIngredients: Ingredient[] = [
     name: 'Olive Oil',
     brand: 'Bertolli',
     servings_per_container: 32,
-    created_at: yesterday,
+    created_at: today,
     is_verified: true,
     verified_by: null,
     verified_at: null,
@@ -81,7 +85,7 @@ export const mockIngredients: Ingredient[] = [
     name: 'Eggs',
     brand: 'Happy Egg Co',
     servings_per_container: 12,
-    created_at: yesterday,
+    created_at: today,
     is_verified: true,
     verified_by: null,
     verified_at: null,
@@ -91,36 +95,36 @@ export const mockIngredients: Ingredient[] = [
 // Ingredient Nutrients (per 1 serving as defined in ingredient_units)
 export const mockIngredientNutrients: IngredientNutrient[] = [
   // Chicken Breast (per 112g serving)
-  { id: 'in-1', ingredient_id: 'ing-1', nutrient_key: 'calories', unit: 'kcal', amount: 165, created_at: yesterday },
-  { id: 'in-2', ingredient_id: 'ing-1', nutrient_key: 'protein', unit: 'g', amount: 31, created_at: yesterday },
-  { id: 'in-3', ingredient_id: 'ing-1', nutrient_key: 'total_carbs', unit: 'g', amount: 0, created_at: yesterday },
-  { id: 'in-4', ingredient_id: 'ing-1', nutrient_key: 'total_fat', unit: 'g', amount: 3.6, created_at: yesterday },
+  { id: 'in-1', ingredient_id: 'ing-1', nutrient_key: 'calories', unit: 'kcal', amount: 165, created_at: today },
+  { id: 'in-2', ingredient_id: 'ing-1', nutrient_key: 'protein', unit: 'g', amount: 31, created_at: today },
+  { id: 'in-3', ingredient_id: 'ing-1', nutrient_key: 'total_carbs', unit: 'g', amount: 0, created_at: today },
+  { id: 'in-4', ingredient_id: 'ing-1', nutrient_key: 'total_fat', unit: 'g', amount: 3.6, created_at: today },
 
   // White Rice (per 45g dry serving)
-  { id: 'in-5', ingredient_id: 'ing-2', nutrient_key: 'calories', unit: 'kcal', amount: 160, created_at: yesterday },
-  { id: 'in-6', ingredient_id: 'ing-2', nutrient_key: 'protein', unit: 'g', amount: 3, created_at: yesterday },
-  { id: 'in-7', ingredient_id: 'ing-2', nutrient_key: 'total_carbs', unit: 'g', amount: 36, created_at: yesterday },
-  { id: 'in-8', ingredient_id: 'ing-2', nutrient_key: 'total_fat', unit: 'g', amount: 0.3, created_at: yesterday },
-  { id: 'in-9', ingredient_id: 'ing-2', nutrient_key: 'dietary_fiber', unit: 'g', amount: 0.6, created_at: yesterday },
+  { id: 'in-5', ingredient_id: 'ing-2', nutrient_key: 'calories', unit: 'kcal', amount: 160, created_at: today },
+  { id: 'in-6', ingredient_id: 'ing-2', nutrient_key: 'protein', unit: 'g', amount: 3, created_at: today },
+  { id: 'in-7', ingredient_id: 'ing-2', nutrient_key: 'total_carbs', unit: 'g', amount: 36, created_at: today },
+  { id: 'in-8', ingredient_id: 'ing-2', nutrient_key: 'total_fat', unit: 'g', amount: 0.3, created_at: today },
+  { id: 'in-9', ingredient_id: 'ing-2', nutrient_key: 'dietary_fiber', unit: 'g', amount: 0.6, created_at: today },
 
   // Broccoli (per 91g serving)
-  { id: 'in-10', ingredient_id: 'ing-3', nutrient_key: 'calories', unit: 'kcal', amount: 31, created_at: yesterday },
-  { id: 'in-11', ingredient_id: 'ing-3', nutrient_key: 'protein', unit: 'g', amount: 2.5, created_at: yesterday },
-  { id: 'in-12', ingredient_id: 'ing-3', nutrient_key: 'total_carbs', unit: 'g', amount: 6, created_at: yesterday },
-  { id: 'in-13', ingredient_id: 'ing-3', nutrient_key: 'dietary_fiber', unit: 'g', amount: 2.4, created_at: yesterday },
-  { id: 'in-14', ingredient_id: 'ing-3', nutrient_key: 'total_fat', unit: 'g', amount: 0.3, created_at: yesterday },
+  { id: 'in-10', ingredient_id: 'ing-3', nutrient_key: 'calories', unit: 'kcal', amount: 31, created_at: today },
+  { id: 'in-11', ingredient_id: 'ing-3', nutrient_key: 'protein', unit: 'g', amount: 2.5, created_at: today },
+  { id: 'in-12', ingredient_id: 'ing-3', nutrient_key: 'total_carbs', unit: 'g', amount: 6, created_at: today },
+  { id: 'in-13', ingredient_id: 'ing-3', nutrient_key: 'dietary_fiber', unit: 'g', amount: 2.4, created_at: today },
+  { id: 'in-14', ingredient_id: 'ing-3', nutrient_key: 'total_fat', unit: 'g', amount: 0.3, created_at: today },
 
   // Olive Oil (per 14g / 1 tbsp serving)
-  { id: 'in-15', ingredient_id: 'ing-4', nutrient_key: 'calories', unit: 'kcal', amount: 119, created_at: yesterday },
-  { id: 'in-16', ingredient_id: 'ing-4', nutrient_key: 'total_fat', unit: 'g', amount: 13.5, created_at: yesterday },
-  { id: 'in-17', ingredient_id: 'ing-4', nutrient_key: 'protein', unit: 'g', amount: 0, created_at: yesterday },
-  { id: 'in-18', ingredient_id: 'ing-4', nutrient_key: 'total_carbs', unit: 'g', amount: 0, created_at: yesterday },
+  { id: 'in-15', ingredient_id: 'ing-4', nutrient_key: 'calories', unit: 'kcal', amount: 119, created_at: today },
+  { id: 'in-16', ingredient_id: 'ing-4', nutrient_key: 'total_fat', unit: 'g', amount: 13.5, created_at: today },
+  { id: 'in-17', ingredient_id: 'ing-4', nutrient_key: 'protein', unit: 'g', amount: 0, created_at: today },
+  { id: 'in-18', ingredient_id: 'ing-4', nutrient_key: 'total_carbs', unit: 'g', amount: 0, created_at: today },
 
   // Eggs (per 50g / 1 large egg)
-  { id: 'in-19', ingredient_id: 'ing-5', nutrient_key: 'calories', unit: 'kcal', amount: 72, created_at: yesterday },
-  { id: 'in-20', ingredient_id: 'ing-5', nutrient_key: 'protein', unit: 'g', amount: 6, created_at: yesterday },
-  { id: 'in-21', ingredient_id: 'ing-5', nutrient_key: 'total_fat', unit: 'g', amount: 5, created_at: yesterday },
-  { id: 'in-22', ingredient_id: 'ing-5', nutrient_key: 'total_carbs', unit: 'g', amount: 0.6, created_at: yesterday },
+  { id: 'in-19', ingredient_id: 'ing-5', nutrient_key: 'calories', unit: 'kcal', amount: 72, created_at: today },
+  { id: 'in-20', ingredient_id: 'ing-5', nutrient_key: 'protein', unit: 'g', amount: 6, created_at: today },
+  { id: 'in-21', ingredient_id: 'ing-5', nutrient_key: 'total_fat', unit: 'g', amount: 5, created_at: today },
+  { id: 'in-22', ingredient_id: 'ing-5', nutrient_key: 'total_carbs', unit: 'g', amount: 0.6, created_at: today },
 ];
 
 // Ingredient Units
@@ -128,25 +132,25 @@ export const mockIngredientNutrients: IngredientNutrient[] = [
 // Example: If 1 serving = 45g, and 1 cup = 185g, then amount = 45/185 = 0.243 cups
 export const mockIngredientUnits: IngredientUnit[] = [
   // Chicken Breast - 1 serving = 112g
-  { id: 'iu-1', ingredient_id: 'ing-1', unit_name: 'g', amount: 112, is_default: true, created_by: DEMO_USER_ID, created_at: yesterday },
-  { id: 'iu-2', ingredient_id: 'ing-1', unit_name: 'oz', amount: 112 / 28.35, is_default: false, created_by: DEMO_USER_ID, created_at: yesterday }, // 1 serving = ~3.95 oz
+  { id: 'iu-1', ingredient_id: 'ing-1', unit_name: 'g', amount: 112, is_default: true, created_by: DEMO_USER_ID, created_at: today },
+  { id: 'iu-2', ingredient_id: 'ing-1', unit_name: 'oz', amount: 112 / 28.35, is_default: false, created_by: DEMO_USER_ID, created_at: today }, // 1 serving = ~3.95 oz
 
   // White Rice - 1 serving = 45g dry
-  { id: 'iu-3', ingredient_id: 'ing-2', unit_name: 'g', amount: 45, is_default: true, created_by: DEMO_USER_ID, created_at: yesterday },
-  { id: 'iu-4', ingredient_id: 'ing-2', unit_name: 'cup', amount: 45 / 185, is_default: false, created_by: DEMO_USER_ID, created_at: yesterday }, // 1 serving = 0.243 cups
+  { id: 'iu-3', ingredient_id: 'ing-2', unit_name: 'g', amount: 45, is_default: true, created_by: DEMO_USER_ID, created_at: today },
+  { id: 'iu-4', ingredient_id: 'ing-2', unit_name: 'cup', amount: 45 / 185, is_default: false, created_by: DEMO_USER_ID, created_at: today }, // 1 serving = 0.243 cups
 
   // Broccoli - 1 serving = 91g
-  { id: 'iu-5', ingredient_id: 'ing-3', unit_name: 'g', amount: 91, is_default: true, created_by: DEMO_USER_ID, created_at: yesterday },
-  { id: 'iu-6', ingredient_id: 'ing-3', unit_name: 'cup', amount: 1, is_default: false, created_by: DEMO_USER_ID, created_at: yesterday }, // 1 serving = 1 cup
+  { id: 'iu-5', ingredient_id: 'ing-3', unit_name: 'g', amount: 91, is_default: true, created_by: DEMO_USER_ID, created_at: today },
+  { id: 'iu-6', ingredient_id: 'ing-3', unit_name: 'cup', amount: 1, is_default: false, created_by: DEMO_USER_ID, created_at: today }, // 1 serving = 1 cup
 
   // Olive Oil - 1 serving = 14g (1 tbsp)
-  { id: 'iu-7', ingredient_id: 'ing-4', unit_name: 'g', amount: 14, is_default: false, created_by: DEMO_USER_ID, created_at: yesterday },
-  { id: 'iu-8', ingredient_id: 'ing-4', unit_name: 'tbsp', amount: 1, is_default: true, created_by: DEMO_USER_ID, created_at: yesterday }, // 1 serving = 1 tbsp
-  { id: 'iu-9', ingredient_id: 'ing-4', unit_name: 'ml', amount: 14 / 14.79, is_default: false, created_by: DEMO_USER_ID, created_at: yesterday }, // 1 serving = ~0.95 ml
+  { id: 'iu-7', ingredient_id: 'ing-4', unit_name: 'g', amount: 14, is_default: false, created_by: DEMO_USER_ID, created_at: today },
+  { id: 'iu-8', ingredient_id: 'ing-4', unit_name: 'tbsp', amount: 1, is_default: true, created_by: DEMO_USER_ID, created_at: today }, // 1 serving = 1 tbsp
+  { id: 'iu-9', ingredient_id: 'ing-4', unit_name: 'ml', amount: 14 / 14.79, is_default: false, created_by: DEMO_USER_ID, created_at: today }, // 1 serving = ~0.95 ml
 
   // Eggs - 1 serving = 50g (1 large egg)
-  { id: 'iu-10', ingredient_id: 'ing-5', unit_name: 'g', amount: 50, is_default: false, created_by: DEMO_USER_ID, created_at: yesterday },
-  { id: 'iu-11', ingredient_id: 'ing-5', unit_name: 'piece', amount: 1, is_default: true, created_by: DEMO_USER_ID, created_at: yesterday }, // 1 serving = 1 egg
+  { id: 'iu-10', ingredient_id: 'ing-5', unit_name: 'g', amount: 50, is_default: false, created_by: DEMO_USER_ID, created_at: today },
+  { id: 'iu-11', ingredient_id: 'ing-5', unit_name: 'piece', amount: 1, is_default: true, created_by: DEMO_USER_ID, created_at: today }, // 1 serving = 1 egg
 ];
 
 // Recipes
@@ -157,8 +161,8 @@ export const mockRecipes: Recipe[] = [
     name: 'Chicken & Rice Bowl',
     description: 'Simple meal prep staple with chicken, rice, and broccoli',
     servings: 4,
-    created_at: yesterday,
-    updated_at: yesterday,
+    created_at: today,
+    updated_at: today,
   },
   {
     id: 'rec-2',
@@ -166,22 +170,22 @@ export const mockRecipes: Recipe[] = [
     name: 'Scrambled Eggs',
     description: 'Quick breakfast with eggs and olive oil',
     servings: 1,
-    created_at: yesterday,
-    updated_at: yesterday,
+    created_at: today,
+    updated_at: today,
   },
 ];
 
 // Recipe Ingredients (quantities in grams for precision)
 export const mockRecipeIngredients: RecipeIngredient[] = [
   // Chicken & Rice Bowl (4 servings total)
-  { id: 'ri-1', recipe_id: 'rec-1', ingredient_id: 'ing-1', quantity: 4, unit: 'servings', created_at: yesterday }, // 4 servings chicken = 448g
-  { id: 'ri-2', recipe_id: 'rec-1', ingredient_id: 'ing-2', quantity: 4, unit: 'servings', created_at: yesterday }, // 4 servings rice = 180g dry
-  { id: 'ri-3', recipe_id: 'rec-1', ingredient_id: 'ing-3', quantity: 4, unit: 'servings', created_at: yesterday }, // 4 servings broccoli = 364g
-  { id: 'ri-4', recipe_id: 'rec-1', ingredient_id: 'ing-4', quantity: 2, unit: 'servings', created_at: yesterday }, // 2 tbsp oil
+  { id: 'ri-1', recipe_id: 'rec-1', ingredient_id: 'ing-1', quantity: 4, unit: 'servings', created_at: today }, // 4 servings chicken = 448g
+  { id: 'ri-2', recipe_id: 'rec-1', ingredient_id: 'ing-2', quantity: 4, unit: 'servings', created_at: today }, // 4 servings rice = 180g dry
+  { id: 'ri-3', recipe_id: 'rec-1', ingredient_id: 'ing-3', quantity: 4, unit: 'servings', created_at: today }, // 4 servings broccoli = 364g
+  { id: 'ri-4', recipe_id: 'rec-1', ingredient_id: 'ing-4', quantity: 2, unit: 'servings', created_at: today }, // 2 tbsp oil
 
   // Scrambled Eggs (1 serving)
-  { id: 'ri-5', recipe_id: 'rec-2', ingredient_id: 'ing-5', quantity: 2, unit: 'servings', created_at: yesterday }, // 2 eggs
-  { id: 'ri-6', recipe_id: 'rec-2', ingredient_id: 'ing-4', quantity: 0.5, unit: 'servings', created_at: yesterday }, // 0.5 tbsp oil
+  { id: 'ri-5', recipe_id: 'rec-2', ingredient_id: 'ing-5', quantity: 2, unit: 'servings', created_at: today }, // 2 eggs
+  { id: 'ri-6', recipe_id: 'rec-2', ingredient_id: 'ing-4', quantity: 0.5, unit: 'servings', created_at: today }, // 0.5 tbsp oil
 ];
 
 // Recipe Nutrients (total for entire recipe)
@@ -206,22 +210,22 @@ export const mockRecipeNutrients: RecipeNutrient[] = [
 // Inventory - Using mixed units to showcase MEAP's conversion feature
 export const mockInventory: InventoryItem[] = [
   // Chicken Breast - 800g (shows grams)
-  { id: 'inv-1', user_id: DEMO_USER_ID, ingredient_id: 'ing-1', recipe_id: null, quantity: 800, unit: 'g', created_at: yesterday, updated_at: yesterday },
+  { id: 'inv-1', user_id: DEMO_USER_ID, ingredient_id: 'ing-1', recipe_id: null, quantity: 800, unit: 'g', created_at: today, updated_at: today },
 
   // White Rice - 2.5 cups (shows cup measurement, ~462.5g total)
-  { id: 'inv-2', user_id: DEMO_USER_ID, ingredient_id: 'ing-2', recipe_id: null, quantity: 2.5, unit: 'cup', created_at: yesterday, updated_at: yesterday },
+  { id: 'inv-2', user_id: DEMO_USER_ID, ingredient_id: 'ing-2', recipe_id: null, quantity: 2.5, unit: 'cup', created_at: today, updated_at: today },
 
   // Broccoli - 5 servings (shows servings, 455g total)
-  { id: 'inv-3', user_id: DEMO_USER_ID, ingredient_id: 'ing-3', recipe_id: null, quantity: 5, unit: 'servings', created_at: yesterday, updated_at: yesterday },
+  { id: 'inv-3', user_id: DEMO_USER_ID, ingredient_id: 'ing-3', recipe_id: null, quantity: 5, unit: 'servings', created_at: today, updated_at: today },
 
   // Olive Oil - 10 tbsp (shows tablespoons as the default unit)
-  { id: 'inv-4', user_id: DEMO_USER_ID, ingredient_id: 'ing-4', recipe_id: null, quantity: 10, unit: 'tbsp', created_at: yesterday, updated_at: yesterday },
+  { id: 'inv-4', user_id: DEMO_USER_ID, ingredient_id: 'ing-4', recipe_id: null, quantity: 10, unit: 'tbsp', created_at: today, updated_at: today },
 
   // Eggs - 8 pieces (shows pieces/whole eggs)
-  { id: 'inv-5', user_id: DEMO_USER_ID, ingredient_id: 'ing-5', recipe_id: null, quantity: 8, unit: 'piece', created_at: yesterday, updated_at: yesterday },
+  { id: 'inv-5', user_id: DEMO_USER_ID, ingredient_id: 'ing-5', recipe_id: null, quantity: 8, unit: 'piece', created_at: today, updated_at: today },
 
   // Chicken & Rice Bowl recipe - 2 servings
-  { id: 'inv-6', user_id: DEMO_USER_ID, ingredient_id: null, recipe_id: 'rec-1', quantity: 2, unit: 'servings', created_at: yesterday, updated_at: yesterday },
+  { id: 'inv-6', user_id: DEMO_USER_ID, ingredient_id: null, recipe_id: 'rec-1', quantity: 2, unit: 'servings', created_at: today, updated_at: today },
 ];
 
 // Food Logs (some from today)
@@ -241,7 +245,7 @@ export const mockFoodLogs: FoodLog[] = [
     unit: 'servings',
     log_datetime: todayStart.toISOString(),
     meal_type: 'breakfast',
-    created_at: now,
+    created_at: today,
   },
   {
     id: 'fl-2',
@@ -252,7 +256,7 @@ export const mockFoodLogs: FoodLog[] = [
     unit: 'servings',
     log_datetime: todayLunch.toISOString(),
     meal_type: 'lunch',
-    created_at: now,
+    created_at: today,
   },
 ];
 
@@ -274,10 +278,10 @@ export const mockFoodLogNutrients: FoodLogNutrient[] = [
 
 // Goals
 export const mockGoals: Goal[] = [
-  { id: 'goal-1', user_id: DEMO_USER_ID, nutrient_key: 'calories', target_amount: 2000, created_at: yesterday, updated_at: yesterday },
-  { id: 'goal-2', user_id: DEMO_USER_ID, nutrient_key: 'protein', target_amount: 150, created_at: yesterday, updated_at: yesterday },
-  { id: 'goal-3', user_id: DEMO_USER_ID, nutrient_key: 'total_carbs', target_amount: 200, created_at: yesterday, updated_at: yesterday },
-  { id: 'goal-4', user_id: DEMO_USER_ID, nutrient_key: 'total_fat', target_amount: 65, created_at: yesterday, updated_at: yesterday },
+  { id: 'goal-1', user_id: DEMO_USER_ID, nutrient_key: 'calories', target_amount: 2000, created_at: today, updated_at: today },
+  { id: 'goal-2', user_id: DEMO_USER_ID, nutrient_key: 'protein', target_amount: 150, created_at: today, updated_at: today },
+  { id: 'goal-3', user_id: DEMO_USER_ID, nutrient_key: 'total_carbs', target_amount: 200, created_at: today, updated_at: today },
+  { id: 'goal-4', user_id: DEMO_USER_ID, nutrient_key: 'total_fat', target_amount: 65, created_at: today, updated_at: today },
 ];
 
 // Export everything as initial state

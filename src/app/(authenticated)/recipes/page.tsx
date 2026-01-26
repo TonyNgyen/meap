@@ -45,7 +45,6 @@ const SORTABLE_KEYS = [
   { key: "total_carbs", display: "Carbs/Serving" },
 ];
 
-// Skeleton Loading Component
 function NutritionSkeleton() {
   return (
     <div className="mt-6 pt-4 border-t border-zinc-200 dark:border-zinc-700">
@@ -192,7 +191,7 @@ function RecipeNutrients({
       )}
 
       <div className="text-xs text-zinc-500 dark:text-zinc-400 mt-3 text-center">
-        Based on {servings} serving{servings !== 1 ? "s" : ""}
+        Based on 1 serving
       </div>
     </div>
   );
@@ -203,7 +202,7 @@ export default function RecipePage() {
   const [loading, setLoading] = useState(true);
   const [expandedRecipe, setExpandedRecipe] = useState<string | null>(null);
   const [sortKey, setSortKey] = useState<string>("created_at");
-  const [sortDirection, setSortDirection] = useState<"desc" | "asc">("desc"); // Default to newest first
+  const [sortDirection, setSortDirection] = useState<"desc" | "asc">("desc");
   const { fetch: customFetch } = useFetch();
 
   const fetchRecipes = async () => {
@@ -211,7 +210,6 @@ export default function RecipePage() {
     try {
       const res = await customFetch("/api/recipes");
       const data = await res.json();
-      console.log("Fetched recipes:", data);
       if (data.success) {
         setRecipes(data.recipes);
       }
@@ -233,13 +231,12 @@ export default function RecipePage() {
     const nutrient = recipe.recipe_nutrients.find(
       (n) => n.nutrient_key === nutrientKey
     );
-    // Return the total amount divided by servings, or 0
     return nutrient ? nutrient.total_amount / recipe.servings : 0;
   };
 
-  // 👇 NEW: Memoized sorted list
+
   const sortedRecipes = useMemo(() => {
-    // Create a mutable copy of the recipes array
+
     const sorted = [...recipes];
 
     sorted.sort((a, b) => {
@@ -250,38 +247,34 @@ export default function RecipePage() {
         aValue = a.name.toLowerCase();
         bValue = b.name.toLowerCase();
       } else if (sortKey === "created_at") {
-        // Treat dates as strings for comparison
         aValue = a.created_at;
         bValue = b.created_at;
       } else {
-        // Handle sorting by nutrient (amount per serving)
         aValue = getRecipeNutrientAmountPerServing(a, sortKey);
         bValue = getRecipeNutrientAmountPerServing(b, sortKey);
       }
 
-      // Comparison logic
       if (aValue < bValue) {
         return sortDirection === "asc" ? -1 : 1;
       }
       if (aValue > bValue) {
         return sortDirection === "asc" ? 1 : -1;
       }
-      return 0; // Values are equal
+      return 0;
     });
 
     return sorted;
   }, [recipes, sortKey, sortDirection]);
 
-  // 👇 NEW: Sort handler function
   const handleSortChange = (key: string) => {
     if (key === sortKey) {
-      // Toggle direction if the same key is clicked
+
       setSortDirection(sortDirection === "asc" ? "desc" : "asc");
     } else {
-      // Set new key, set direction to 'asc' for name/nutrient, 'desc' for date
+
       setSortKey(key);
       if (key === "created_at") {
-        setSortDirection("desc"); // Newest first for date
+        setSortDirection("desc");
       } else {
         setSortDirection("asc");
       }
