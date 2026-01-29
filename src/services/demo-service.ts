@@ -380,8 +380,8 @@ export async function demoGetRecentMeals(): Promise<{
     meals: Array<{
         id: string;
         log_datetime: string;
-        ingredient: Ingredient | null;
-        recipe: Recipe | null;
+        ingredient: Ingredient | null | undefined;
+        recipe: Recipe | null | undefined;
         nutrients: Array<{
             nutrient_key: string;
             amount: number;

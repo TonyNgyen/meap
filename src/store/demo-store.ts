@@ -103,8 +103,8 @@ type DemoState = {
     getRecentMeals: () => Array<{
         id: string;
         log_datetime: string;
-        ingredient: any | null;
-        recipe: any | null;
+        ingredient: Ingredient | null | undefined;
+        recipe: Recipe | null | undefined;
         nutrients: Array<{
             nutrient_key: string;
             amount: number;

@@ -125,12 +125,12 @@ export default function DashboardClient({
           </p>
         </div>
         {isDemo ? (
-          <a
+          <Link
             href="/"
             className="hover:bg-gray-200 dark:hover:bg-zinc-800 cursor-pointer px-4 py-2 rounded-md transition-all inline-block rounded-md"
           >
             Log out
-          </a>
+          </Link>
         ) : (
           <button
             onClick={logout}

@@ -73,9 +73,10 @@ const RecentMealsCard = forwardRef<
       <h2 className="text-xl font-semibold text-zinc-900 dark:text-white mb-4">
         Recent Meals
       </h2>
-      <div className="space-y-3">
+      <div className="space-y-2 max-h-[232px] overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-zinc-300 dark:scrollbar-thumb-zinc-600">
         {isLoading ? (
           <>
+            <MealItemSkeleton />
             <MealItemSkeleton />
             <MealItemSkeleton />
             <MealItemSkeleton />
