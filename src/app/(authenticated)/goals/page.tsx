@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import { ALL_NUTRIENTS_DICT } from "@/constants/constants";
 import AddGoalForm from "@/components/add-goal-form";
 import { LuTrophy } from "react-icons/lu";
+import { useFetch } from "@/providers/demo-provider";
 
 type Goal = {
   id: string;
@@ -58,6 +59,7 @@ const GoalCardSkeleton = () => (
 );
 
 export default function GoalsPage() {
+  const { fetch: customFetch } = useFetch();
   const [goals, setGoals] = useState<Goal[]>([]);
   const [loading, setLoading] = useState(false);
   const [initialLoading, setInitialLoading] = useState(true);
@@ -73,7 +75,7 @@ export default function GoalsPage() {
   }, []);
 
   const fetchFoodLogs = async (date: string) => {
-    const res = await fetch(`/api/food-logs?date=${date}`);
+    const res = await customFetch(`/api/food-logs?date=${date}`);
     const data = await res.json();
     if (data.success) setFoodLogs(data.food_logs || []);
   };
@@ -98,7 +100,7 @@ export default function GoalsPage() {
   const fetchGoals = async () => {
     try {
       setInitialLoading(true);
-      const res = await fetch("/api/goals");
+      const res = await customFetch("/api/goals");
       const data = await res.json();
       if (data.success) {
         setGoals(data.goals);
@@ -119,7 +121,7 @@ export default function GoalsPage() {
     setLoading(true);
 
     try {
-      const res = await fetch("/api/goals", {
+      const res = await customFetch("/api/goals", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -145,7 +147,7 @@ export default function GoalsPage() {
     if (!confirm("Are you sure you want to delete this goal?")) return;
 
     try {
-      const res = await fetch(`/api/goals/${id}`, { method: "DELETE" });
+      const res = await customFetch(`/api/goals/${id}`, { method: "DELETE" });
       const data = await res.json();
 
       if (data.success) {

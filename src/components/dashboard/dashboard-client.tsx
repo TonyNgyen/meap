@@ -1,13 +1,14 @@
 "use client";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import NutrientOverview from "./nutrient-overview";
 import RecentMealsCard from "./recent-meals-card";
 import InventoryCard from "./inventory-card";
 import { LuUtensils, LuBookOpen, LuCarrot, LuBoxes } from "react-icons/lu";
 import Link from "next/link";
 import AddLogModal from "../add-log-modal";
-import AddInventoryModal from "../add-inventory-modal"; // Import the inventory modal
-import { logout } from "@/app/logout/actions";
+import AddInventoryModal from "../add-inventory-modal";
+import { logout } from "@/app/(authenticated)/logout/actions";
+import { useFetch } from "@/providers/demo-provider";
 
 type NutrientOverviewHandle = {
   refresh: () => Promise<void>;
@@ -66,6 +67,8 @@ export default function DashboardClient({
   const [isLogModalOpen, setIsLogModalOpen] = useState(false);
   const [isInventoryModalOpen, setIsInventoryModalOpen] = useState(false);
 
+  const { fetch: customFetch, isDemo } = useFetch();
+
   const nutrientOverviewRef = useRef<NutrientOverviewHandle>(null);
   const recentMealsRef = useRef<RecentMealsHandle>(null);
   const inventoryRef = useRef<InventoryHandle>(null);
@@ -76,14 +79,18 @@ export default function DashboardClient({
     await refreshInventory();
   };
 
+  useEffect(() => {
+    refreshRecentMeals();
+    refreshInventory();
+  }, []);
+
   const handleInventorySuccess = async () => {
     await refreshInventory();
   };
 
   const refreshRecentMeals = async () => {
-    console.log("Refreshing recent meals...");
     try {
-      const res = await fetch("/api/recent-meals");
+      const res = await customFetch("/api/recent-meals");
       const data = await res.json();
       if (data.success) {
         setRecentMeals(data.meals);
@@ -95,7 +102,7 @@ export default function DashboardClient({
 
   const refreshInventory = async () => {
     try {
-      const res = await fetch("/api/inventory");
+      const res = await customFetch("/api/inventory");
       const data = await res.json();
       if (data.success) {
         setInventoryItems(data.inventory);
@@ -117,12 +124,21 @@ export default function DashboardClient({
             Here&apos;s your overview for today
           </p>
         </div>
-        <button
-          onClick={logout}
-          className="hover:bg-gray-200 dark:hover:bg-zinc-800 cursor-pointer px-4 py-2 rounded-md transition-all"
-        >
-          Log out
-        </button>
+        {isDemo ? (
+          <Link
+            href="/"
+            className="hover:bg-gray-200 dark:hover:bg-zinc-800 cursor-pointer px-4 py-2 rounded-md transition-all inline-block rounded-md"
+          >
+            Log out
+          </Link>
+        ) : (
+          <button
+            onClick={logout}
+            className="hover:bg-gray-200 dark:hover:bg-zinc-800 cursor-pointer px-4 py-2 rounded-md transition-all"
+          >
+            Log out
+          </button>
+        )}
       </div>
 
       {/* Nutrition Overview - pass callback for refresh */}
@@ -155,16 +171,32 @@ export default function DashboardClient({
           </div>
           <div className="font-medium">Add Inventory</div>
         </button>
-        <QuickAction
-          icon={<LuBookOpen className="w-7 h-7" />}
-          title="Recipes"
-          href="/recipes"
-        />
-        <QuickAction
-          icon={<LuCarrot className="w-7 h-7" />}
-          title="Ingredients"
-          href="/ingredients"
-        />
+        {isDemo ? (
+          <QuickAction
+            icon={<LuUtensils className="w-7 h-7" />}
+            title="Recipes"
+            href="/demo/recipes"
+          />
+        ) : (
+          <QuickAction
+            icon={<LuBookOpen className="w-7 h-7" />}
+            title="Recipes"
+            href="/recipes"
+          />
+        )}
+        {isDemo ? (
+          <QuickAction
+            icon={<LuCarrot className="w-7 h-7" />}
+            title="Ingredients"
+            href="/demo/ingredients"
+          />
+        ) : (
+          <QuickAction
+            icon={<LuCarrot className="w-7 h-7" />}
+            title="Ingredients"
+            href="/ingredients"
+          />
+        )}
       </div>
 
       {/* Two Column Layout */}

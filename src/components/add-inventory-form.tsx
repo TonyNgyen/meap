@@ -1,5 +1,6 @@
 "use client";
 import React, { useState, useEffect } from "react";
+import { useFetch } from "@/providers/demo-provider";
 
 type IngredientUnit = {
   id: string;
@@ -12,10 +13,10 @@ type Ingredient = {
   id: string;
   name: string;
   brand: string | null;
-  serving_size: number | null; // Changed to allow null based on your data example
-  serving_unit: string | null; // NEW: Added based on your data
+  serving_size: number | null;
+  serving_unit: string | null;
   servings_per_container: number | null;
-  units: IngredientUnit[]; // NEW: Added the nested units array
+  units: IngredientUnit[];
 };
 
 type Recipe = { id: string; name: string };
@@ -49,12 +50,14 @@ export default function AddInventoryForm({
   );
   const [availableUnits, setAvailableUnits] = useState<IngredientUnit[]>([]);
 
-  // ✅ Search ingredients
+
+  const { fetch: customFetch } = useFetch();
+
   useEffect(() => {
     if (ingredientQuery.length < 2) return setIngredientResults([]);
     const timeout = setTimeout(async () => {
       try {
-        const res = await fetch(
+        const res = await customFetch(
           `/api/ingredients/search?q=${encodeURIComponent(ingredientQuery)}`
         );
         const data = await res.json();
@@ -68,12 +71,11 @@ export default function AddInventoryForm({
     return () => clearTimeout(timeout);
   }, [ingredientQuery]);
 
-  // ✅ Search recipes
   useEffect(() => {
     if (recipeQuery.length < 2) return setRecipeResults([]);
     const timeout = setTimeout(async () => {
       try {
-        const res = await fetch(`/api/recipes/search?q=${recipeQuery}`);
+        const res = await customFetch(`/api/recipes/search?q=${recipeQuery}`);
         const data = await res.json();
         console.log("Recipe search data:", data);
         if (data.success) setRecipeResults(data.results || data.recipes);
@@ -86,20 +88,16 @@ export default function AddInventoryForm({
 
   useEffect(() => {
     if (selectedIngredient) {
-      // Use the units already fetched with the ingredient search result
       setAvailableUnits(selectedIngredient.units);
 
-      // This logic can be removed if handled in the onClick, but keep it
-      // here to ensure state consistency if selectedIngredient is set elsewhere.
       const defaultUnitName =
         selectedIngredient.units.find((u) => u.is_default)?.unit_name ||
         selectedIngredient.serving_unit ||
         "grams";
       setIngredientUnit(defaultUnitName);
     } else {
-      // Clear if no ingredient is selected
       setAvailableUnits([]);
-      setIngredientUnit("grams"); // Default unit when nothing is selected
+      setIngredientUnit("grams");
     }
   }, [selectedIngredient]);
 
@@ -169,7 +167,7 @@ export default function AddInventoryForm({
           unit: ingredientUnit || "grams",
         };
 
-        const res = await fetch("/api/inventory", {
+        const res = await customFetch("/api/inventory", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload),
@@ -178,7 +176,7 @@ export default function AddInventoryForm({
         const data = await res.json();
         if (!data.success) throw new Error(data.message || "Unknown error");
       } else {
-        // --- ✅ Recipe path (simplified) ---
+        // --- Recipe path ---
         if (!selectedRecipe) {
           alert("Please select a recipe");
           return;
@@ -194,7 +192,7 @@ export default function AddInventoryForm({
           p_user_id: "",
         };
 
-        const res = await fetch("/api/inventory", {
+        const res = await customFetch("/api/inventory", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload),
@@ -206,7 +204,7 @@ export default function AddInventoryForm({
 
       // ✅ If everything succeeds
       onSuccess();
-      handleClose(); // resets form
+      handleClose();
     } catch (err: unknown) {
       console.error("Error updating inventory:", err);
       const message = err instanceof Error ? err.message : "Unknown error";
@@ -291,8 +289,6 @@ export default function AddInventoryForm({
               <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
                 Search Ingredients
               </label>
-              {/* {ingredientQuantity}
-              {ingredientUnit} */}
               <div className="relative">
                 <input
                   type="text"
@@ -428,31 +424,26 @@ export default function AddInventoryForm({
                     onChange={(e) => setIngredientUnit(e.target.value)}
                     className="cursor-pointer w-full px-4 py-3 border border-zinc-300 dark:border-zinc-600 rounded-lg dark:bg-zinc-700 dark:text-white transition-colors"
                     required
-                    // Disabled if no ingredient is selected
                     disabled={isSubmitting || !selectedIngredient}
                   >
-                    {/* Always include 'servings' and 'containers' (if applicable) */}
                     <option value="servings">servings</option>
 
                     {selectedIngredient?.servings_per_container && (
                       <option value="containers">containers</option>
                     )}
 
-                    {/* Standard Serving Unit (e.g., 'grams' or 'mL') */}
                     {selectedIngredient?.serving_unit && (
                       <option value={selectedIngredient.serving_unit}>
                         {selectedIngredient.serving_unit}
                       </option>
                     )}
 
-                    {/* Custom Units from the database (availableUnits state) */}
-                    {availableUnits.map((unit) => (
-                      <option key={unit.id} value={unit.unit_name}>
+                    {availableUnits.map((unit, index) => (
+                      <option key={index} value={unit.unit_name}>
                         {unit.unit_name}
                       </option>
                     ))}
 
-                    {/* Default / Placeholder option */}
                     {!selectedIngredient && (
                       <option value="" disabled>
                         Select an Ingredient

@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import AddIngredientForm from "./add-ingredient-form";
+import AddIngredientForm from "@/components/add-ingredient-form";
+import { useFetch } from "@/providers/demo-provider";
 
 type Nutrient = {
   id: number;
@@ -37,7 +38,7 @@ const SORTABLE_NUTRIENTS = [
   { key: "total_carbs", display: "Carbs" },
 ];
 
-export default function IngredientsList({ user_id }: { user_id: string }) {
+export default function IngredientsPage() {
   const [ingredients, setIngredients] = useState<Ingredient[]>([]);
   const [loading, setLoading] = useState(true);
   const [expandedIngredient, setExpandedIngredient] = useState<number | null>(
@@ -45,12 +46,13 @@ export default function IngredientsList({ user_id }: { user_id: string }) {
   );
   const [sortKey, setSortKey] = useState<string>("name"); // Default sort by name
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
+  const { fetch: customFetch } = useFetch();
 
   const fetchIngredients = async () => {
     setLoading(true);
 
     try {
-      const res = await fetch("/api/ingredients", {
+      const res = await customFetch("/api/ingredients", {
         method: "GET",
         headers: { "Content-Type": "application/json" },
       });
@@ -60,7 +62,7 @@ export default function IngredientsList({ user_id }: { user_id: string }) {
       if (data.error) {
         console.error("Error fetching ingredients:", data.error);
       } else {
-        // Reshape nutrients for easier rendering
+        console.log("Raw fetched data:", data.ingredients);
         const formatted = data.ingredients.map((ing: Ingredient) => ({
           id: ing.id,
           name: ing.name,
@@ -77,6 +79,7 @@ export default function IngredientsList({ user_id }: { user_id: string }) {
           })),
           units: ing.units, // Include units if needed
         }));
+        console.log("Fetched ingredients:", formatted);
         setIngredients(formatted);
       }
     } catch (error) {
@@ -186,10 +189,7 @@ export default function IngredientsList({ user_id }: { user_id: string }) {
           <p className="text-zinc-500 dark:text-zinc-400 text-sm mb-6">
             Add your first ingredient to get started with meal prep!
           </p>
-          <AddIngredientForm
-            user_id={user_id}
-            fetchIngredients={fetchIngredients}
-          />
+          <AddIngredientForm fetchIngredients={fetchIngredients} />
         </div>
       </div>
     );
@@ -202,10 +202,7 @@ export default function IngredientsList({ user_id }: { user_id: string }) {
           <h1 className="text-3xl font-bold text-zinc-900 dark:text-white">
             My Ingredients
           </h1>
-          <AddIngredientForm
-            user_id={user_id}
-            fetchIngredients={fetchIngredients}
-          />
+          <AddIngredientForm fetchIngredients={fetchIngredients} />
         </div>
 
         <span className="text-sm text-zinc-500 dark:text-zinc-400 bg-zinc-100 dark:bg-zinc-700 px-3 py-1 rounded-full">

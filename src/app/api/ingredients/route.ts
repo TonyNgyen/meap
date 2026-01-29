@@ -11,18 +11,20 @@ type Unit = {
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const { user_id, name, brand, servings_per_container, nutrients, units } =
+    const { name, brand, servings_per_container, nutrients, units } =
       body;
 
-    console.log("Received body:", body);
-
     const supabase = await createClient();
+    const {
+      data: { user },
+      error: userError,
+    } = await supabase.auth.getUser();
 
     const { data: ingredient, error: ingredientError } = await supabase
       .from("ingredients")
       .insert([
         {
-          user_id,
+          user_id: user?.id,
           name,
           brand,
           servings_per_container,
@@ -68,7 +70,7 @@ export async function POST(req: Request) {
         unit_name: u.unit_name,
         amount: u.amount,
         is_default: !!u.is_default,
-        created_by: user_id,
+        created_by: user?.id,
       }));
 
       const { error: unitError } = await supabase

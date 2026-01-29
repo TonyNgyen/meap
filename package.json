@@ -1,5 +1,5 @@
 {
-  "name": "mise",
+  "name": "meap",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -7,7 +7,8 @@
     "build": "next build --turbopack",
     "start": "next start",
     "lint": "eslint",
-    "fetch:usda": "node --loader ts-node/esm scripts/fetchUsdaFoods.ts"
+    "fetch:usda": "node --loader ts-node/esm scripts/fetchUsdaFoods.ts",
+    "test": "vitest run"
   },
   "dependencies": {
     "@supabase/ssr": "^0.7.0",
@@ -19,7 +20,8 @@
     "postcss": "^8.5.6",
     "react": "19.1.0",
     "react-dom": "19.1.0",
-    "react-icons": "^5.5.0"
+    "react-icons": "^5.5.0",
+    "zustand": "^5.0.9"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
@@ -31,7 +33,8 @@
     "eslint-config-next": "15.5.2",
     "tailwindcss": "^4.1.12",
     "ts-node": "^10.9.2",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "vitest": "^2.1.4"
   },
   "type": "module"
 }

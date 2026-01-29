@@ -8,10 +8,10 @@ import {
   LuChevronUp,
   LuTrash2,
   LuInfo,
-  LuTriangleAlert, // Added for error icon
-} from "react-icons/lu"; // Using lucide-react for icons
+  LuTriangleAlert,
+} from "react-icons/lu";
+import { useFetch } from "@/providers/demo-provider";
 
-// Type definitions for clarity
 type Nutrient = {
   key: string;
   display_name: string;
@@ -35,9 +35,8 @@ type UnitConversion = {
   is_default: boolean;
 };
 
-// --- Data Definitions (Unchanged) ---
 const COMMON_NUTRIENTS: Nutrient[] = [
-  { key: "calories", display_name: "Calories", unit: "cal" },
+  { key: "calories", display_name: "Calories", unit: "kcal" },
   { key: "protein", display_name: "Protein", unit: "g" },
   { key: "total_fat", display_name: "Total Fat", unit: "g" },
   { key: "saturated_fat", display_name: "Saturated Fat", unit: "g" },
@@ -155,10 +154,8 @@ const Tooltip = ({
 );
 
 export default function AddIngredientForm({
-  user_id,
   fetchIngredients,
 }: {
-  user_id: string;
   fetchIngredients: () => void;
 }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -177,7 +174,7 @@ export default function AddIngredientForm({
   );
   const [units, setUnits] = useState<UnitConversion[]>([]);
   const [formError, setFormError] = useState<string | null>(null);
-
+  const { fetch: customFetch } = useFetch();
   const [showNicheNutrients, setShowNicheNutrients] = useState(false);
   const [activeNicheCategory, setActiveNicheCategory] =
     useState<keyof typeof NICHE_NUTRIENTS>("fats");
@@ -388,7 +385,6 @@ export default function AddIngredientForm({
       })); // 6. Prepare Payload
 
     const payload = {
-      user_id,
       name,
       brand, // Pass serving size only if it's filled, otherwise use 0 or null
       serving_size: isServingInfoComplete ? parseFloat(servingSize) : null,
@@ -400,7 +396,7 @@ export default function AddIngredientForm({
       units: finalUnitsToSend, // Use the finalized array
     };
 
-    const res = await fetch("/api/ingredients", {
+    const res = await customFetch("/api/ingredients", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
@@ -412,7 +408,7 @@ export default function AddIngredientForm({
       resetForm();
       setIsModalOpen(false);
       alert("Ingredient added successfully! 🎉");
-      fetchIngredients(); // Refresh the ingredient list after adding a new one
+      fetchIngredients();
     } else {
       alert("Failed to add ingredient. Please try again.");
     }

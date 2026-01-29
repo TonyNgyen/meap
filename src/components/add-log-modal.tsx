@@ -2,6 +2,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { useFetch } from "@/providers/demo-provider";
 
 type Nutrient = {
   id: string;
@@ -56,12 +57,13 @@ export default function AddLogModal({
   const [unit, setUnit] = useState("");
   const [updateInventory, setUpdateInventory] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const { fetch: customFetch } = useFetch();
 
   useEffect(() => {
     if (!isOpen) return;
     if (ingredientQuery.length < 2) return setIngredientResults([]);
     const timeout = setTimeout(async () => {
-      const res = await fetch(
+      const res = await customFetch(
         `/api/ingredients/search?q=${encodeURIComponent(ingredientQuery)}`
       );
       const data = await res.json();
@@ -74,7 +76,7 @@ export default function AddLogModal({
     if (!isOpen) return;
     if (recipeQuery.length < 2) return setRecipeResults([]);
     const timeout = setTimeout(async () => {
-      const res = await fetch(`/api/recipes/search?q=${recipeQuery}`);
+      const res = await customFetch(`/api/recipes/search?q=${recipeQuery}`);
       const data = await res.json();
       if (data.success) setRecipeResults(data.recipes || data.results);
     }, 300);
@@ -113,7 +115,7 @@ export default function AddLogModal({
     }
 
     try {
-      const res = await fetch("/api/food-logs", {
+      const res = await customFetch("/api/food-logs", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

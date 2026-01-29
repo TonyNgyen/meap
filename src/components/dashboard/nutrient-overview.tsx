@@ -8,6 +8,7 @@ import React, {
 } from "react";
 import { ALL_NUTRIENTS_DICT } from "@/constants/constants";
 import AddLogForm from "../add-log-form";
+import { useFetch } from "@/providers/demo-provider";
 
 type FoodLog = {
   id: string;
@@ -49,13 +50,7 @@ type NutrientCardProps = {
 type Ingredient = { id: string; name: string; brand: string | null };
 type Recipe = { id: string; name: string };
 
-function NutrientCard({
-  title,
-  value,
-  subtitle,
-  color,
-}: NutrientCardProps) {
-
+function NutrientCard({ title, value, subtitle, color }: NutrientCardProps) {
   return (
     <div className="bg-white dark:bg-zinc-800 rounded-xl shadow-sm border border-zinc-200 dark:border-zinc-700 p-4">
       <div className={`text-2xl font-bold ${colorClasses[color]}`}>{value}</div>
@@ -98,18 +93,25 @@ const NutrientOverview = forwardRef(
     // const [selectedDate, setSelectedDate] = useState(
     //   new Date().toISOString().split("T")[0]
     // );
-    const selectedDate = new Date().toISOString().split("T")[0];
+    const now = new Date();
+    const selectedDate =
+      now.getFullYear() +
+      "-" +
+      String(now.getMonth() + 1).padStart(2, "0") +
+      "-" +
+      String(now.getDate()).padStart(2, "0");
     const [isLoading, setIsLoading] = useState(true);
+    const { fetch: customFetch } = useFetch();
 
     const fetchFoodLogs = async (date: string) => {
-      const res = await fetch(`/api/food-logs?date=${date}`);
+      const res = await customFetch(`/api/food-logs?date=${date}`);
       const data = await res.json();
       if (data.success) setFoodLogs(data.food_logs || []);
     };
 
     const fetchGoals = async () => {
       try {
-        const res = await fetch("/api/goals");
+        const res = await customFetch("/api/goals");
         const data = await res.json();
         if (data.success) setGoals(data.goals);
       } catch (error) {
@@ -166,9 +168,7 @@ const NutrientOverview = forwardRef(
         const consumed = totals[key]?.amount || 0;
         const unit = totals[key]?.unit || "g";
         const target = goal?.target_amount || null;
-        const percent = target
-          ? Math.min((consumed / target) * 100, 100)
-          : null;
+        const percent = target ? (consumed / target) * 100 : null;
 
         return {
           nutrient_key: key,
@@ -187,8 +187,8 @@ const NutrientOverview = forwardRef(
     const categorizedNutrients = {
       main: nutrientData.filter((n) =>
         ["calories", "protein", "total_fat", "total_carbs"].includes(
-          n.nutrient_key
-        )
+          n.nutrient_key,
+        ),
       ),
       macros: nutrientData.filter((n) =>
         [
@@ -197,7 +197,7 @@ const NutrientOverview = forwardRef(
           "dietary_fiber",
           "sugars",
           "added_sugars",
-        ].includes(n.nutrient_key)
+        ].includes(n.nutrient_key),
       ),
       vitamins: nutrientData.filter(
         (n) =>
@@ -209,7 +209,7 @@ const NutrientOverview = forwardRef(
             "folate",
             "biotin",
             "pantothenic_acid",
-          ].includes(n.nutrient_key)
+          ].includes(n.nutrient_key),
       ),
       minerals: nutrientData.filter((n) =>
         [
@@ -220,7 +220,7 @@ const NutrientOverview = forwardRef(
           "iron",
           "magnesium",
           "zinc",
-        ].includes(n.nutrient_key)
+        ].includes(n.nutrient_key),
       ),
       other: nutrientData.filter(
         (n) =>
@@ -250,7 +250,7 @@ const NutrientOverview = forwardRef(
             "iron",
             "magnesium",
             "zinc",
-          ].includes(n.nutrient_key)
+          ].includes(n.nutrient_key),
       ),
     };
 
@@ -379,7 +379,7 @@ const NutrientOverview = forwardRef(
         </div>
       </div>
     );
-  }
+  },
 );
 
 NutrientOverview.displayName = "NutrientOverview";

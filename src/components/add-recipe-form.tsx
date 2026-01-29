@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { ALL_NUTRIENTS_DICT } from "@/constants/constants";
 import { LuPlus, LuX, LuTrash2, LuLoader, LuSearch } from "react-icons/lu";
+import { useFetch } from "@/providers/demo-provider";
 
 type Nutrient = {
   id: number;
@@ -53,6 +54,7 @@ export default function AddRecipeForm({
 }: {
   fetchRecipes: () => void;
 }) {
+  const { fetch: customFetch } = useFetch();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [name, setName] = useState("");
   const [servings, setServings] = useState<number>(1);
@@ -120,16 +122,14 @@ export default function AddRecipeForm({
     );
 
     try {
-      // NOTE: In a real Next.js/DB app, this API call would use the built-in database ORM (Prisma/Neon)
-      // Since the prompt suggests a `/api/ingredients/search` endpoint, we'll keep the fetch call.
-      const res = await fetch(
+      const res = await customFetch(
         `/api/ingredients/search?q=${encodeURIComponent(query)}`
       );
       const data = await res.json();
-
-      console.log(data);
+      console.log("Search data:", data);
 
       if (data.success) {
+        console.log("Search results:", data.ingredients);
         setIngredients((prev) =>
           prev.map((ing, i) =>
             i === index
@@ -229,7 +229,7 @@ export default function AddRecipeForm({
     }
 
     try {
-      const res = await fetch("/api/recipes", {
+      const res = await customFetch("/api/recipes", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

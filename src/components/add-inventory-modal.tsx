@@ -2,6 +2,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { useFetch } from "@/providers/demo-provider";
 
 type IngredientUnit = {
   id: string;
@@ -49,6 +50,7 @@ export default function AddInventoryModal({
     "ingredient"
   );
   const [availableUnits, setAvailableUnits] = useState<IngredientUnit[]>([]);
+  const { fetch: customFetch } = useFetch();
 
   // Search ingredients
   useEffect(() => {
@@ -56,7 +58,7 @@ export default function AddInventoryModal({
     if (ingredientQuery.length < 2) return setIngredientResults([]);
     const timeout = setTimeout(async () => {
       try {
-        const res = await fetch(
+        const res = await customFetch(
           `/api/ingredients/search?q=${encodeURIComponent(ingredientQuery)}`
         );
         const data = await res.json();
@@ -75,7 +77,7 @@ export default function AddInventoryModal({
     if (recipeQuery.length < 2) return setRecipeResults([]);
     const timeout = setTimeout(async () => {
       try {
-        const res = await fetch(`/api/recipes/search?q=${recipeQuery}`);
+        const res = await customFetch(`/api/recipes/search?q=${recipeQuery}`);
         const data = await res.json();
         if (data.success) setRecipeResults(data.results || data.recipes);
       } catch (error) {
@@ -165,7 +167,7 @@ export default function AddInventoryModal({
           unit: ingredientUnit || "grams",
         };
 
-        const res = await fetch("/api/inventory", {
+        const res = await customFetch("/api/inventory", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload),
@@ -189,7 +191,7 @@ export default function AddInventoryModal({
           p_user_id: "",
         };
 
-        const res = await fetch("/api/inventory", {
+        const res = await customFetch("/api/inventory", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload),
