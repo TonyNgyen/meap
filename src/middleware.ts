@@ -37,7 +37,11 @@ export async function middleware(request: NextRequest) {
     pathname.startsWith(route)
   );
 
-  if (!isPublicRoute && pathname !== "/") {
+  // Check if this is an API route
+  const isApiRoute = pathname.startsWith("/api");
+
+  // For non-public, non-API routes, redirect to login
+  if (!isPublicRoute && !isApiRoute && pathname !== "/") {
     const supabase = await createClient();
     const {
       data: { user },
@@ -60,7 +64,6 @@ export const config = {
      * - _next/static (static files)
      * - _next/image (image optimization files)
      * - favicon.ico (favicon file)
-     * - API routes (optional, if you want to handle auth differently for API)
      */
     "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
   ],
