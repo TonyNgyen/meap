@@ -438,8 +438,8 @@ export default function AddInventoryForm({
                       </option>
                     )}
 
-                    {availableUnits.map((unit) => (
-                      <option key={unit.id} value={unit.unit_name}>
+                    {availableUnits.map((unit, index) => (
+                      <option key={index} value={unit.unit_name}>
                         {unit.unit_name}
                       </option>
                     ))}

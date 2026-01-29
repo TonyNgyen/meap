@@ -195,7 +195,7 @@ async function handleDemoFetch(url: string, options?: RequestInit) {
 // MOCK RESPONSE HELPER
 // ============================================
 // Creates a mock Response object that looks like a real fetch response
-function createMockResponse(data: any): Response {
+function createMockResponse<T>(data: T): Response {
   return {
     ok: true,
     status: 200,
@@ -206,13 +206,13 @@ function createMockResponse(data: any): Response {
     blob: async () => new Blob([JSON.stringify(data)]),
     arrayBuffer: async () => new ArrayBuffer(0),
     formData: async () => new FormData(),
-    clone: function () {
+    clone() {
       return this;
     },
     body: null,
     bodyUsed: false,
     redirected: false,
-    type: "basic" as ResponseType,
+    type: "basic",
     url: "",
   } as Response;
 }

@@ -3,7 +3,7 @@
 
 import { ALL_NUTRIENTS_DICT } from '@/constants/constants';
 import { useDemoStore } from '@/store/demo-store';
-import type { PopulatedInventoryItem, PopulatedFoodLog } from '@/types';
+import type { PopulatedInventoryItem, PopulatedFoodLog, Ingredient, Recipe, Goal } from '@/types';
 import { get } from 'http';
 
 
@@ -380,8 +380,8 @@ export async function demoGetRecentMeals(): Promise<{
     meals: Array<{
         id: string;
         log_datetime: string;
-        ingredient: any | null;
-        recipe: any | null;
+        ingredient: Ingredient | null;
+        recipe: Recipe | null;
         nutrients: Array<{
             nutrient_key: string;
             amount: number;
@@ -397,7 +397,7 @@ export async function demoGetRecentMeals(): Promise<{
 // Demo API: Get Goals
 export async function demoGetGoals(): Promise<{
     success: boolean;
-    goals: any[];
+    goals: Goal[];
 }> {
     const store = useDemoStore.getState();
     const goals = store.getGoals();
@@ -409,7 +409,7 @@ export async function demoGetGoals(): Promise<{
 export async function demoAddGoal(payload: {
     nutrient_key: string;
     target_amount: number;
-}): Promise<{ success: boolean; goal?: any }> {
+}): Promise<{ success: boolean; goal?: Goal }> {
     const store = useDemoStore.getState();
     const newGoal = store.addGoal(payload);
 
@@ -420,7 +420,7 @@ export async function demoAddGoal(payload: {
 export async function demoUpdateGoal(payload: {
     id: string;
     target_amount: number;
-}): Promise<{ success: boolean; goal?: any }> {
+}): Promise<{ success: boolean; goal?: Goal }> {
     const store = useDemoStore.getState();
     store.updateGoal(payload.id, payload.target_amount);
 
@@ -432,7 +432,7 @@ export async function demoUpdateGoal(payload: {
 // Demo API: Get Ingredients
 export async function demoGetIngredients(): Promise<{
     success: boolean;
-    ingredients: any[];
+    ingredients: Ingredient[];
 }> {
     const store = useDemoStore.getState();
     const ingredients = store.getIngredients();
@@ -449,7 +449,7 @@ export async function demoGetIngredients(): Promise<{
 // Demo API: Get Recipes
 export async function demoGetRecipes(): Promise<{
     success: boolean;
-    recipes: any[];
+    recipes: Recipe[];
 }> {
     const store = useDemoStore.getState();
     const recipes = store.getRecipes();
@@ -472,7 +472,7 @@ export async function demoGetRecipes(): Promise<{
 // ============================================
 export async function demoSearchIngredients(query: string): Promise<{
     success: boolean;
-    ingredients: any[];
+    ingredients: Ingredient[];
 }> {
     const store = useDemoStore.getState();
     const ingredients = store.getIngredients();
@@ -498,7 +498,7 @@ export async function demoSearchIngredients(query: string): Promise<{
 // ============================================
 export async function demoSearchRecipes(query: string): Promise<{
     success: boolean;
-    results: any[];
+    results: Recipe[];
 }> {
     const store = useDemoStore.getState();
     const recipes = store.getRecipes();
@@ -529,7 +529,7 @@ export async function demoAddIngredient(payload: {
         amount: number;
         is_default: boolean;
     }>;
-}): Promise<{ success: boolean; ingredient?: any }> {
+}): Promise<{ success: boolean; ingredient?: Ingredient }> {
     const store = useDemoStore.getState();
 
     // 1. Create the ingredient
@@ -579,7 +579,7 @@ export async function demoAddRecipe(payload: {
         quantity: number;
         unit: string;
     }>;
-}): Promise<{ success: boolean; recipe?: any }> {
+}): Promise<{ success: boolean; recipe?: Recipe }> {
     const store = useDemoStore.getState();
 
     // 1. Create the recipe
