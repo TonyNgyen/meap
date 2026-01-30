@@ -94,14 +94,14 @@ function Footer() {
                   What&apos;s New
                 </a>
               </li>
-              {/* <li>
+              <li>
                 <a
-                  href="#"
+                  href="/demo"
                   className="text-sm text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors"
                 >
-                  Documentation
+                  Try out meap
                 </a>
-              </li> */}
+              </li>
             </ul>
           </div>
 
