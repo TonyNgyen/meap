@@ -89,6 +89,17 @@ export async function POST(req: Request) {
 export async function GET() {
   try {
     const supabase = await createClient();
+    const {
+      data: { user },
+      error: userError,
+    } = await supabase.auth.getUser();
+
+    if (userError || !user) {
+      return NextResponse.json(
+        { success: false, error: "User not authenticated" },
+        { status: 401 }
+      );
+    }
 
     const { data: ingredients, error: ingredientsError } = await supabase
       .from("ingredients")
@@ -112,7 +123,7 @@ export async function GET() {
           amount
         )
       `
-      );
+      ).eq("user_id", user.id);
 
     if (ingredientsError) throw ingredientsError;
 

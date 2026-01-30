@@ -49,6 +49,17 @@ export async function POST(req: Request) {
 export async function GET() {
   try {
     const supabase = await createClient();
+    const {
+      data: { user },
+      error: userError,
+    } = await supabase.auth.getUser();
+
+    if (userError || !user) {
+      return NextResponse.json(
+        { success: false, error: "User not authenticated" },
+        { status: 401 }
+      );
+    }
 
     const { data: recipes, error } = await supabase
       .from("recipes")
@@ -79,7 +90,7 @@ export async function GET() {
           )
         )
       `
-      )
+      ).eq("user_id", user.id)
       .order("created_at", { ascending: false });
 
     if (error) throw error;

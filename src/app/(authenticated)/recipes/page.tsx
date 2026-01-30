@@ -320,7 +320,7 @@ export default function RecipePage() {
   if (recipes.length === 0) {
     return (
       <div className="p-6 text-center min-h-screen">
-        <div className="bg-zinc-50 dark:bg-zinc-800 rounded-xl p-8 max-w-md mx-auto">
+        <div className="bg-zinc-50 dark:bg-zinc-800 rounded-xl p-8 max-w-md mx-auto flex flex-col items-center">
           <div className="text-zinc-400 dark:text-zinc-500 text-6xl mb-4">
             <LuChefHat className="mx-auto" />
           </div>
