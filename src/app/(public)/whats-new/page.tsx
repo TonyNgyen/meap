@@ -16,10 +16,10 @@ function WhatsNewPage() {
   const updates: Update[] = [
     {
       version: "1.1.0",
-      date: "2026-01-26",
-      title: "Try MEAP Without Signing Up!",
+      date: "2026-01-30",
+      title: "Try meap Without Signing Up!",
       description:
-        "We're excited to introduce a fully interactive demo mode that lets you experience MEAP before creating an account.",
+        "We're excited to introduce a fully interactive demo mode that lets you experience meap before creating an account.",
       features: [
         "Full demo mode - Try all features without signing up",
         "Interactive inventory management",
@@ -37,10 +37,10 @@ function WhatsNewPage() {
     {
       version: "1.0.0",
       date: "2025-12-25",
-      title: "Welcome to MEAP!",
+      title: "Welcome to meap!",
       isLaunch: true,
       description:
-        "We're excited to launch the first version of MEAP, your meal prep assistant and nutrition tracker.",
+        "We're excited to launch the first version of meap, your meal prep assistant and nutrition tracker.",
       features: [
         "Create and save custom recipes",
         "Add ingredients to your personal database",
