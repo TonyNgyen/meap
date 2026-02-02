@@ -1,6 +1,3 @@
-// src/types/index.ts
-// Centralized type definitions for MEAP
-// These match your Supabase database schema exactly
 
 export type Ingredient = {
   id: string;
@@ -27,7 +24,7 @@ export type IngredientUnit = {
   id: string;
   ingredient_id: string;
   unit_name: string;
-  amount: number; // grams equivalent for this unit
+  amount: number;
   is_default: boolean;
   created_by: string;
   created_at: string;
