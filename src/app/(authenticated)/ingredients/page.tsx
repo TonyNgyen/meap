@@ -2,33 +2,8 @@
 
 import { useEffect, useMemo, useState } from "react";
 import AddIngredientForm from "@/components/add-ingredient-form";
-import { useFetch } from "@/providers/demo-provider";
-
-type Nutrient = {
-  id: number;
-  nutrient_key: string;
-  display_name: string;
-  unit: string;
-  amount: number;
-};
-
-type Unit = {
-  id: number;
-  unit_name: string;
-  is_default: boolean;
-  amount: number;
-};
-
-type Ingredient = {
-  id: number;
-  name: string;
-  brand?: string;
-  serving_size?: number;
-  serving_unit?: string;
-  servings_per_container?: number;
-  nutrients: Nutrient[];
-  units: Unit[];
-};
+import { useApiClient } from "@/lib/hooks";
+import { ingredientsApi, Ingredient, Nutrient, ApiError } from "@/lib/api";
 
 const SORTABLE_NUTRIENTS = [
   { key: "name", display: "Name" },
@@ -41,49 +16,32 @@ const SORTABLE_NUTRIENTS = [
 export default function IngredientsPage() {
   const [ingredients, setIngredients] = useState<Ingredient[]>([]);
   const [loading, setLoading] = useState(true);
-  const [expandedIngredient, setExpandedIngredient] = useState<number | null>(
-    null
+  const [error, setError] = useState<string | null>(null);
+  const [expandedIngredient, setExpandedIngredient] = useState<string | null>(
+    null,
   );
-  const [sortKey, setSortKey] = useState<string>("name"); // Default sort by name
+  const [sortKey, setSortKey] = useState<string>("name");
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
-  const { fetch: customFetch } = useFetch();
 
+  // ✨ Get demo-aware fetch function
+  const { customFetch } = useApiClient();
+
+  // ✨ CLEAN: One function, one responsibility
   const fetchIngredients = async () => {
     setLoading(true);
+    setError(null);
 
     try {
-      const res = await customFetch("/api/ingredients", {
-        method: "GET",
-        headers: { "Content-Type": "application/json" },
-      });
-
-      const data = await res.json();
-
-      if (data.error) {
-        console.error("Error fetching ingredients:", data.error);
-      } else {
-        console.log("Raw fetched data:", data.ingredients);
-        const formatted = data.ingredients.map((ing: Ingredient) => ({
-          id: ing.id,
-          name: ing.name,
-          brand: ing.brand,
-          serving_size: ing.serving_size,
-          serving_unit: ing.serving_unit,
-          servings_per_container: ing.servings_per_container,
-          nutrients: ing.nutrients.map((n) => ({
-            id: n.id,
-            amount: n.amount,
-            nutrient_key: n.nutrient_key,
-            display_name: n.display_name,
-            unit: n.unit,
-          })),
-          units: ing.units, // Include units if needed
-        }));
-        console.log("Fetched ingredients:", formatted);
-        setIngredients(formatted);
-      }
-    } catch (error) {
-      console.error("Failed to fetch ingredients:", error);
+      // ✨ CLEAN: Single API call, pass custom fetch for demo mode
+      const data = await ingredientsApi.getAll(customFetch);
+      console.log("Fetched ingredients:", data);
+      setIngredients(data);
+    } catch (err) {
+      // ✨ CLEAN: Type-safe error handling
+      const errorMessage =
+        err instanceof ApiError ? err.message : "Failed to fetch ingredients";
+      console.error("Failed to fetch ingredients:", err);
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -93,35 +51,34 @@ export default function IngredientsPage() {
     fetchIngredients();
   }, []);
 
-  const toggleExpand = (id: number) => {
+  const toggleExpand = (id: string) => {
     setExpandedIngredient(expandedIngredient === id ? null : id);
   };
 
+  // ✨ CLEAN: Business logic functions stay the same
   const getMainNutrients = (nutrients: Nutrient[]) => {
     const mainKeys = ["calories", "protein", "total_fat", "total_carbs"];
-    return nutrients.filter((n) => mainKeys.includes(n.nutrient_key));
+    return nutrients.filter((n) => mainKeys.includes(n.nutrientKey));
   };
 
   const getOtherNutrients = (nutrients: Nutrient[]) => {
     const mainKeys = ["calories", "protein", "total_fat", "total_carbs"];
     return nutrients.filter(
-      (n) => !mainKeys.includes(n.nutrient_key) && n.amount > 0
+      (n) => !mainKeys.includes(n.nutrientKey) && n.amount > 0,
     );
   };
 
   const getIngredientNutrientAmount = (
     ingredient: Ingredient,
-    nutrientKey: string
+    nutrientKey: string,
   ): number => {
-    // Find the nutrient object by key and return its amount, or 0 if not found
     const nutrient = ingredient.nutrients.find(
-      (n) => n.nutrient_key === nutrientKey
+      (n) => n.nutrientKey === nutrientKey,
     );
     return nutrient?.amount ?? 0;
   };
 
   const sortedIngredients = useMemo(() => {
-    // Create a mutable copy of the ingredients array
     const sorted = [...ingredients];
 
     sorted.sort((a, b) => {
@@ -132,19 +89,17 @@ export default function IngredientsPage() {
         aValue = a.name.toLowerCase();
         bValue = b.name.toLowerCase();
       } else {
-        // Handle sorting by nutrient
         aValue = getIngredientNutrientAmount(a, sortKey);
         bValue = getIngredientNutrientAmount(b, sortKey);
       }
 
-      // Comparison logic
       if (aValue < bValue) {
         return sortDirection === "asc" ? -1 : 1;
       }
       if (aValue > bValue) {
         return sortDirection === "asc" ? 1 : -1;
       }
-      return 0; // Values are equal
+      return 0;
     });
 
     return sorted;
@@ -152,14 +107,32 @@ export default function IngredientsPage() {
 
   const handleSortChange = (key: string) => {
     if (key === sortKey) {
-      // Toggle direction if the same key is clicked
       setSortDirection(sortDirection === "asc" ? "desc" : "asc");
     } else {
-      // Set new key and reset direction to ascending
       setSortKey(key);
       setSortDirection("asc");
     }
   };
+
+  // ✨ CLEAN: Error state handling
+  if (error) {
+    return (
+      <div className="p-6 min-h-screen">
+        <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl p-6 max-w-md mx-auto">
+          <h3 className="text-lg font-semibold text-red-800 dark:text-red-200 mb-2">
+            Error loading ingredients
+          </h3>
+          <p className="text-red-600 dark:text-red-300 text-sm mb-4">{error}</p>
+          <button
+            onClick={fetchIngredients}
+            className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+          >
+            Try Again
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   if (loading) {
     return (
@@ -228,7 +201,6 @@ export default function IngredientsPage() {
             `}
           >
             {item.display}{" "}
-            {/* Display icon for active sort key and direction */}
             {sortKey === item.key && (sortDirection === "asc" ? "↑" : "↓")}
           </button>
         ))}
@@ -254,26 +226,25 @@ export default function IngredientsPage() {
                 <div className="space-y-1 mt-1">
                   {(() => {
                     const defaultUnit = ingredient.units.find(
-                      (u) => u.is_default
+                      (u) => u.isDefault,
                     );
                     return defaultUnit ? (
                       <p className="text-zinc-600 dark:text-zinc-400 text-sm">
-                        Serving: {defaultUnit.amount} {defaultUnit.unit_name}{" "}
-                        {ingredient.serving_size &&
-                          ingredient.serving_unit &&
-                          `(${ingredient.serving_size}${ingredient.serving_unit})`}
+                        Serving: {defaultUnit.amount} {defaultUnit.unitName}{" "}
+                        {ingredient.servingSize &&
+                          ingredient.servingUnit &&
+                          `(${ingredient.servingSize}${ingredient.servingUnit})`}
                       </p>
                     ) : (
                       <p className="text-zinc-600 dark:text-zinc-400 text-sm">
-                        Serving: {ingredient.serving_size}
-                        {ingredient.serving_unit}
+                        Serving: {ingredient.servingSize}
+                        {ingredient.servingUnit}
                       </p>
                     );
                   })()}
-                  {ingredient.servings_per_container && (
+                  {ingredient.servingsPerContainer && (
                     <p className="text-zinc-600 dark:text-zinc-400 text-sm">
-                      Servings per container:{" "}
-                      {ingredient.servings_per_container}
+                      Servings per container: {ingredient.servingsPerContainer}
                     </p>
                   )}
                 </div>
@@ -327,7 +298,7 @@ export default function IngredientsPage() {
                       </span>
                     </div>
                     <div className="text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wide">
-                      {nutrient.display_name}
+                      {nutrient.displayName}
                     </div>
                   </div>
                 ))}
@@ -348,7 +319,7 @@ export default function IngredientsPage() {
                       className="flex items-center justify-between p-2 bg-zinc-50 dark:bg-zinc-700 rounded-lg"
                     >
                       <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
-                        {nutrient.display_name}
+                        {nutrient.displayName}
                       </span>
                       <span className="text-sm font-medium text-zinc-900 dark:text-white">
                         {nutrient.amount} {nutrient.unit}
@@ -365,16 +336,6 @@ export default function IngredientsPage() {
                 )}
               </div>
             )}
-
-            {/* Quick Actions */}
-            {/* <div className="flex justify-end space-x-2 mt-4 pt-3 border-t border-zinc-100 dark:border-zinc-700">
-              <button className="px-3 py-1 text-xs text-zinc-600 dark:text-zinc-400 hover:text-zinc-800 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-700 rounded-md transition-colors">
-                Edit
-              </button>
-              <button className="px-3 py-1 text-xs text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-md transition-colors">
-                Delete
-              </button>
-            </div> */}
           </div>
         ))}
       </div>
