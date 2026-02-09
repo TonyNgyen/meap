@@ -10,7 +10,8 @@ import {
   LuInfo,
   LuTriangleAlert,
 } from "react-icons/lu";
-import { useFetch } from "@/providers/demo-provider";
+import { useApiClient } from "@/lib/hooks";
+import { ingredientsApi, ApiError } from "@/lib/api";
 
 type Nutrient = {
   key: string;
@@ -91,7 +92,7 @@ const NICHE_NUTRIENTS: NicheNutrientCategory = {
     { key: "magnesium", display_name: "Magnesium", unit: "mg" },
     { key: "zinc", display_name: "zinc", unit: "mg" },
     { key: "selenium", display_name: "Selenium", unit: "mcg" },
-    { key: "copper", display_name: "Copper", unit: "mg" }, // Fixed typo "Cupper" -> "Copper" for display
+    { key: "copper", display_name: "Copper", unit: "mg" },
     { key: "manganese", display_name: "Manganese", unit: "mg" },
     { key: "chromium", display_name: "Chromium", unit: "mcg" },
     { key: "molybdenum", display_name: "Molybdenum", unit: "mcg" },
@@ -170,11 +171,15 @@ export default function AddIngredientForm({
       unit: nutrient.unit,
       amount: "",
       display_name: nutrient.display_name,
-    }))
+    })),
   );
   const [units, setUnits] = useState<UnitConversion[]>([]);
   const [formError, setFormError] = useState<string | null>(null);
-  const { fetch: customFetch } = useFetch();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // ✨ Get demo-aware fetch function
+  const { customFetch } = useApiClient();
+
   const [showNicheNutrients, setShowNicheNutrients] = useState(false);
   const [activeNicheCategory, setActiveNicheCategory] =
     useState<keyof typeof NICHE_NUTRIENTS>("fats");
@@ -182,19 +187,19 @@ export default function AddIngredientForm({
   const commonNutrients = useMemo(
     () =>
       nutrients.filter((nutrient) =>
-        COMMON_NUTRIENTS.some((common) => common.key === nutrient.nutrient_key)
+        COMMON_NUTRIENTS.some((common) => common.key === nutrient.nutrient_key),
       ),
-    [nutrients]
+    [nutrients],
   );
 
   const activeNicheNutrients = useMemo(
     () =>
       nutrients.filter((nutrient) =>
         NICHE_NUTRIENTS[activeNicheCategory].some(
-          (niche) => niche.key === nutrient.nutrient_key
-        )
+          (niche) => niche.key === nutrient.nutrient_key,
+        ),
       ),
-    [nutrients, activeNicheCategory]
+    [nutrients, activeNicheCategory],
   );
 
   const resetForm = () => {
@@ -209,7 +214,7 @@ export default function AddIngredientForm({
         unit: nutrient.unit,
         amount: "",
         display_name: nutrient.display_name,
-      }))
+      })),
     );
     setUnits([]);
     setShowNicheNutrients(false);
@@ -241,7 +246,7 @@ export default function AddIngredientForm({
   const updateUnit = (
     index: number,
     field: "unit_name" | "amount" | "is_default",
-    value: string | number | boolean
+    value: string | number | boolean,
   ) => {
     const updated = [...units];
     let processedValue: string | number | boolean = value;
@@ -258,16 +263,10 @@ export default function AddIngredientForm({
       });
     }
 
-    // NEW: If a unit name is added/changed, and no unit is currently default,
-    // and there's no serving size, you might want to auto-select.
-    // However, it's safer to do the auto-selection on submit, as it's a final
-    // validation/auto-fill step. We'll keep the submit logic cleaner.
-
     setUnits(updated);
   };
 
   const unitsForDisplay = useMemo(() => {
-    // 1. Filter out invalid units (same logic as used in handleSubmit pre-validation)
     let processedUnits = units
       .map((u) => ({
         ...u,
@@ -275,7 +274,6 @@ export default function AddIngredientForm({
       }))
       .filter((u) => u.unit_name.trim() !== "" && u.amount > 0);
 
-    // 2. Check current conditions for auto-default
     const isServingInfoComplete =
       servingSize.trim() !== "" && parseFloat(servingSize) > 0;
     const hasDefaultUnit = processedUnits.some((u) => u.is_default);
@@ -285,36 +283,25 @@ export default function AddIngredientForm({
       processedUnits.length > 0 &&
       !hasDefaultUnit
     ) {
-      // Auto-select the first valid unit if Section 2 is empty and no custom default exists
       processedUnits = processedUnits.map((u, i) => ({
         ...u,
-        // Use the original boolean if one was manually checked, otherwise default to the first
         is_default: units[i]?.is_default || i === 0,
       }));
-    } else if (isServingInfoComplete && hasDefaultUnit) {
-      // OPTIONAL: If Section 2 IS filled, and a custom default exists,
-      // you might want to clear the custom default to avoid confusion,
-      // but for now, we'll let the user choose the default unless they
-      // clear Section 2.
     }
 
-    // 3. Re-map back to the original structure for rendering (using the modified is_default)
     return units.map((u) => {
-      // Find the corresponding unit in the processed list (if it still exists)
       const processedUnit = processedUnits.find(
         (pu) =>
           pu.unit_name === u.unit_name &&
-          (u.amount === "" || pu.amount === parseFloat(u.amount as string))
+          (u.amount === "" || pu.amount === parseFloat(u.amount as string)),
       );
 
       return {
         ...u,
-        // Use the auto-updated default status, but fall back to the original for units
-        // that might have been filtered out (though filtering on valid units is better UX)
         is_default: processedUnit ? processedUnit.is_default : u.is_default,
       };
     });
-  }, [units, servingSize]); // Recalculate whenever units or servingSize changes
+  }, [units, servingSize]);
 
   const removeUnit = (index: number) => {
     setUnits(units.filter((_, i) => i !== index));
@@ -323,94 +310,102 @@ export default function AddIngredientForm({
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setFormError(null);
-    let workingUnits = units
-      .map((u) => ({
-        ...u,
-        amount: parseFloat(u.amount as string) || 0,
-      }))
-      .filter((u) => u.unit_name.trim() !== "" && u.amount > 0); // 2. Validate Serving Information
+    setIsSubmitting(true);
 
-    const isServingInfoComplete =
-      servingSize.trim() !== "" && parseFloat(servingSize) > 0;
+    try {
+      // 1. Process units
+      let workingUnits = units
+        .map((u) => ({
+          ...u,
+          amount: parseFloat(u.amount as string) || 0,
+        }))
+        .filter((u) => u.unit_name.trim() !== "" && u.amount > 0);
 
-    // 3. AUTO-DEFAULT UNIT LOGIC (The requested feature for the payload)
-    const hasCustomUnits = workingUnits.length > 0;
-    const hasDefaultUnit = workingUnits.some((u) => u.is_default);
+      // 2. Validate Serving Information
+      const isServingInfoComplete =
+        servingSize.trim() !== "" && parseFloat(servingSize) > 0;
 
-    if (isServingInfoComplete) {
-      if (hasDefaultUnit) {
-        workingUnits.push({
-          unit_name: servingUnit,
-          amount: parseFloat(servingSize),
-          is_default: false,
-        });
-      } else {
-        workingUnits.push({
-          unit_name: servingUnit,
-          amount: parseFloat(servingSize),
-          is_default: true,
-        });
+      // 3. AUTO-DEFAULT UNIT LOGIC
+      const hasCustomUnits = workingUnits.length > 0;
+      const hasDefaultUnit = workingUnits.some((u) => u.is_default);
+
+      if (isServingInfoComplete) {
+        if (hasDefaultUnit) {
+          workingUnits.push({
+            unit_name: servingUnit,
+            amount: parseFloat(servingSize),
+            is_default: false,
+          });
+        } else {
+          workingUnits.push({
+            unit_name: servingUnit,
+            amount: parseFloat(servingSize),
+            is_default: true,
+          });
+        }
       }
-    }
 
-    if (!isServingInfoComplete && hasCustomUnits && !hasDefaultUnit) {
-      // Automatically set the first valid custom unit as the default for the PAYLOAD
-      workingUnits = workingUnits.map((u, i) => ({
-        ...u,
-        is_default: i === 0,
-      }));
-    }
+      if (!isServingInfoComplete && hasCustomUnits && !hasDefaultUnit) {
+        workingUnits = workingUnits.map((u, i) => ({
+          ...u,
+          is_default: i === 0,
+        }));
+      }
 
-    const finalUnitsToSend = workingUnits;
+      const finalUnitsToSend = workingUnits;
 
-    // 4. Conditional Validation Logic
-    if (!isServingInfoComplete && finalUnitsToSend.length === 0) {
-      setFormError(
-        "You must define either the **Serving Information (Section 2)** OR at least one **Custom Unit Conversion (Section 3)** before saving."
-      );
-      return; // Stop submission
-    }
+      // 4. Conditional Validation Logic
+      if (!isServingInfoComplete && finalUnitsToSend.length === 0) {
+        setFormError(
+          "You must define either the **Serving Information (Section 2)** OR at least one **Custom Unit Conversion (Section 3)** before saving.",
+        );
+        return;
+      }
 
-    const nutrientsToSend = nutrients
-      .map((n) => ({
-        ...n,
-        amount: parseFloat(n.amount as string) || 0, // Ensure final conversion for backend
-      }))
-      .filter((n) => n.amount > 0)
-      .map(({ nutrient_key, unit, amount, display_name }) => ({
-        nutrient_key,
-        unit,
-        amount,
-        display_name,
-      })); // 6. Prepare Payload
+      // 5. Process nutrients
+      const nutrientsToSend = nutrients
+        .map((n) => ({
+          ...n,
+          amount: parseFloat(n.amount as string) || 0,
+        }))
+        .filter((n) => n.amount > 0)
+        .map(({ nutrient_key, unit, amount, display_name }) => ({
+          nutrient_key,
+          unit,
+          amount,
+          display_name,
+        }));
 
-    const payload = {
-      name,
-      brand, // Pass serving size only if it's filled, otherwise use 0 or null
-      serving_size: isServingInfoComplete ? parseFloat(servingSize) : null,
-      serving_unit: isServingInfoComplete ? servingUnit : null, // Only send unit if size is present
-      servings_per_container: servingsPerContainer
-        ? parseFloat(servingsPerContainer)
-        : null,
-      nutrients: nutrientsToSend,
-      units: finalUnitsToSend, // Use the finalized array
-    };
+      // 6. Prepare Payload - Convert null to undefined for TypeScript
+      const payload = {
+        name,
+        brand,
+        servings_per_container: servingsPerContainer
+          ? parseFloat(servingsPerContainer)
+          : undefined,
+        nutrients: nutrientsToSend,
+        units: finalUnitsToSend,
+      };
 
-    const res = await customFetch("/api/ingredients", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-    });
+      // ✨ CLEAN: Use API client instead of manual fetch
+      await ingredientsApi.create(payload, customFetch);
 
-    const data = await res.json();
-
-    if (res.ok && data.success) {
+      // Success!
       resetForm();
       setIsModalOpen(false);
       alert("Ingredient added successfully! 🎉");
       fetchIngredients();
-    } else {
-      alert("Failed to add ingredient. Please try again.");
+    } catch (error) {
+      // ✨ CLEAN: Type-safe error handling
+      const errorMessage =
+        error instanceof ApiError
+          ? error.message
+          : "Failed to add ingredient. Please try again.";
+
+      console.error("Error adding ingredient:", error);
+      alert(errorMessage);
+    } finally {
+      setIsSubmitting(false);
     }
   }
 
@@ -452,7 +447,7 @@ export default function AddIngredientForm({
             {/* Modal Content - Scrollable Form */}
             <div className="p-6 overflow-y-auto custom-scrollbar">
               <form onSubmit={handleSubmit} className="flex flex-col gap-8">
-                {/* NEW: Error Message Display */}
+                {/* Error Message Display */}
                 {formError && (
                   <div
                     className="flex items-center gap-3 p-4 bg-red-100 border border-red-400 text-red-700 dark:bg-red-950 dark:border-red-700 dark:text-red-300 rounded-xl"
@@ -534,7 +529,6 @@ export default function AddIngredientForm({
                         value={servingSize}
                         onChange={(e) => setServingSize(e.target.value)}
                         className="w-full border border-zinc-300 p-3 rounded-xl dark:bg-zinc-700 dark:border-zinc-600 dark:text-white dark:placeholder-zinc-400"
-                        // Removed 'required' attribute
                       />
                     </div>
                     <div>
@@ -549,7 +543,6 @@ export default function AddIngredientForm({
                         value={servingUnit}
                         onChange={(e) => setServingUnit(e.target.value)}
                         className="w-full border border-zinc-300 p-3 rounded-xl appearance-none pr-10 dark:bg-zinc-700 dark:border-zinc-600 dark:text-white"
-                        // Removed 'required' attribute
                       >
                         {STANDARD_UNITS.map((unit) => (
                           <option key={unit} value={unit}>
@@ -629,7 +622,7 @@ export default function AddIngredientForm({
                         <div className="flex items-center gap-2">
                           <input
                             type="checkbox"
-                            checked={unit.is_default} // Now reflects the calculated default
+                            checked={unit.is_default}
                             onChange={(e) =>
                               updateUnit(i, "is_default", e.target.checked)
                             }
@@ -686,7 +679,7 @@ export default function AddIngredientForm({
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-4">
                       {commonNutrients.map((nutrient) => {
                         const globalIndex = nutrients.findIndex(
-                          (n) => n.nutrient_key === nutrient.nutrient_key
+                          (n) => n.nutrient_key === nutrient.nutrient_key,
                         );
                         return (
                           <div
@@ -753,7 +746,7 @@ export default function AddIngredientForm({
                               type="button"
                               onClick={() =>
                                 setActiveNicheCategory(
-                                  category as keyof typeof NICHE_NUTRIENTS
+                                  category as keyof typeof NICHE_NUTRIENTS,
                                 )
                               }
                               className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-colors ${
@@ -771,7 +764,7 @@ export default function AddIngredientForm({
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-4 pt-2">
                           {activeNicheNutrients.map((nutrient) => {
                             const globalIndex = nutrients.findIndex(
-                              (n) => n.nutrient_key === nutrient.nutrient_key
+                              (n) => n.nutrient_key === nutrient.nutrient_key,
                             );
                             return (
                               <div
@@ -791,7 +784,7 @@ export default function AddIngredientForm({
                                     onChange={(e) =>
                                       updateNutrient(
                                         globalIndex,
-                                        e.target.value
+                                        e.target.value,
                                       )
                                     }
                                     className="w-20 border border-zinc-300 p-2 rounded-l-lg text-right dark:bg-zinc-700 dark:border-zinc-600 dark:text-white dark:placeholder-zinc-400 text-sm"
@@ -814,15 +807,43 @@ export default function AddIngredientForm({
                   <button
                     type="button"
                     onClick={closeModal}
-                    className="cursor-pointer px-6 py-2.5 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-700 border border-zinc-300 dark:border-zinc-600 rounded-xl font-medium transition-colors"
+                    disabled={isSubmitting}
+                    className="cursor-pointer px-6 py-2.5 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-700 border border-zinc-300 dark:border-zinc-600 rounded-xl font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
-                    className="cursor-pointer bg-[#3A8F9E] hover:bg-[#337E8D] text-white px-8 py-2.5 rounded-xl font-bold transition-colors shadow-md shadow-[#3A8F9E]/30 dark:shadow-[#3A8F9E]/20"
+                    disabled={isSubmitting}
+                    className="cursor-pointer bg-[#3A8F9E] hover:bg-[#337E8D] text-white px-8 py-2.5 rounded-xl font-bold transition-colors shadow-md shadow-[#3A8F9E]/30 dark:shadow-[#3A8F9E]/20 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                   >
-                    Save Ingredient
+                    {isSubmitting ? (
+                      <>
+                        <svg
+                          className="animate-spin h-4 w-4"
+                          xmlns="http://www.w3.org/2000/svg"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                        >
+                          <circle
+                            className="opacity-25"
+                            cx="12"
+                            cy="12"
+                            r="10"
+                            stroke="currentColor"
+                            strokeWidth="4"
+                          ></circle>
+                          <path
+                            className="opacity-75"
+                            fill="currentColor"
+                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                          ></path>
+                        </svg>
+                        Saving...
+                      </>
+                    ) : (
+                      "Save Ingredient"
+                    )}
                   </button>
                 </div>
               </form>

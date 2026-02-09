@@ -3,19 +3,25 @@
 import { useState, useEffect, useCallback } from "react";
 import { ALL_NUTRIENTS_DICT } from "@/constants/constants";
 import { LuPlus, LuX, LuTrash2, LuLoader, LuSearch } from "react-icons/lu";
-import { useFetch } from "@/providers/demo-provider";
+import { useApiClient } from "@/lib/hooks";
+import {
+  recipesApi,
+  ingredientsApi,
+  ApiError,
+  type Ingredient as ApiIngredient,
+} from "@/lib/api";
 
 type Nutrient = {
-  id: number;
-  nutrient_key: string;
+  id: string;
+  nutrientKey: string;
   unit: string;
   amount: number;
 };
 
 type Unit = {
-  id: number;
-  unit_name: string;
-  is_default: boolean;
+  id: string;
+  unitName: string;
+  isDefault: boolean;
   amount: number;
 };
 
@@ -23,9 +29,9 @@ type Ingredient = {
   id: string;
   name: string;
   brand?: string;
-  serving_size?: number;
-  serving_unit?: string;
-  servings_per_container?: number;
+  servingSize?: number;
+  servingUnit?: string;
+  servingsPerContainer?: number;
   nutrients: Nutrient[];
   units: Unit[];
 };
@@ -45,7 +51,7 @@ type IngredientRow = {
 
 const getMainNutrients = (nutrients: Nutrient[]) => {
   const mainKeys = ["calories", "protein", "total_fat", "total_carbs"];
-  return nutrients.filter((n) => mainKeys.includes(n.nutrient_key));
+  return nutrients.filter((n) => mainKeys.includes(n.nutrientKey));
 };
 
 // --- AddRecipeForm Component ---
@@ -54,7 +60,9 @@ export default function AddRecipeForm({
 }: {
   fetchRecipes: () => void;
 }) {
-  const { fetch: customFetch } = useFetch();
+  // ✨ Get demo-aware fetch function
+  const { customFetch } = useApiClient();
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [name, setName] = useState("");
   const [servings, setServings] = useState<number>(1);
@@ -105,60 +113,59 @@ export default function AddRecipeForm({
   const closeModal = useCallback(() => {
     setIsModalOpen(false);
     resetForm();
-  }, [resetForm]);
+  }, []);
 
   const searchIngredients = async (query: string, index: number) => {
     if (!query || query.length < 2) {
       setIngredients((prev) =>
         prev.map((ing, i) =>
-          i === index ? { ...ing, searchResults: [] } : ing
-        )
+          i === index ? { ...ing, searchResults: [] } : ing,
+        ),
       );
       return;
     }
 
     setIngredients((prev) =>
-      prev.map((ing, i) => (i === index ? { ...ing, isSearching: true } : ing))
+      prev.map((ing, i) => (i === index ? { ...ing, isSearching: true } : ing)),
     );
 
     try {
-      const res = await customFetch(
-        `/api/ingredients/search?q=${encodeURIComponent(query)}`
-      );
-      const data = await res.json();
-      console.log("Search data:", data);
+      // ✨ CLEAN: Use API client instead of manual fetch
+      const results = await ingredientsApi.getAll(customFetch);
 
-      if (data.success) {
-        console.log("Search results:", data.ingredients);
-        setIngredients((prev) =>
-          prev.map((ing, i) =>
-            i === index
-              ? { ...ing, searchResults: data.ingredients, isSearching: false }
-              : ing
-          )
-        );
-      } else {
-        throw new Error("Search failed");
-      }
+      // Filter results by query (client-side search for now)
+      const filteredResults = results.filter(
+        (ing) =>
+          ing.name.toLowerCase().includes(query.toLowerCase()) ||
+          ing.brand?.toLowerCase().includes(query.toLowerCase()),
+      );
+
+      setIngredients((prev) =>
+        prev.map((ing, i) =>
+          i === index
+            ? { ...ing, searchResults: filteredResults, isSearching: false }
+            : ing,
+        ),
+      );
     } catch (error) {
       console.error("Search error:", error);
       setIngredients((prev) =>
         prev.map((ing, i) =>
-          i === index ? { ...ing, isSearching: false, searchResults: [] } : ing
-        )
+          i === index ? { ...ing, isSearching: false, searchResults: [] } : ing,
+        ),
       );
     }
   };
 
   const selectIngredient = (index: number, ingredient: Ingredient) => {
-    // --- REVISED LOGIC TO FIND THE DEFAULT UNIT ---
-    const primaryUnit = ingredient.units.find((u) => u.is_default);
+    // Find the default unit
+    const primaryUnit = ingredient.units.find((u) => u.isDefault);
 
     const defaultUnitName =
-      primaryUnit?.unit_name || // 1. Use the explicit default unit from the 'units' array
-      ingredient.serving_unit || // 2. Fallback to the 'serving_unit' field
-      ingredient.units[0]?.unit_name || // 3. Fallback to the first unit in the list
-      ""; // 4. Fallback to an empty string
+      primaryUnit?.unitName || // 1. Use the explicit default unit
+      ingredient.servingUnit || // 2. Fallback to the 'serving_unit' field
+      ingredient.units[0]?.unitName || // 3. Fallback to the first unit
+      ""; // 4. Fallback to empty string
 
     setIngredients((prev) =>
       prev.map((ing, i) =>
@@ -167,14 +174,14 @@ export default function AddRecipeForm({
               ...ing,
               ingredient_id: ingredient.id,
               ingredient_name: ingredient.name,
-              unit: defaultUnitName, // <-- Use the determined default unit
+              unit: defaultUnitName,
               searchResults: [],
               isSearching: false,
               isSelected: true,
               selectedIngredient: ingredient,
             }
-          : ing
-      )
+          : ing,
+      ),
     );
   };
 
@@ -192,18 +199,18 @@ export default function AddRecipeForm({
               selectedIngredient: undefined,
               searchResults: [],
             }
-          : ing
-      )
+          : ing,
+      ),
     );
   };
 
   const handleInputChange = (
     index: number,
     field: keyof IngredientRow,
-    value: string | number
+    value: string | number,
   ) => {
     setIngredients((prev) =>
-      prev.map((item, i) => (i === index ? { ...item, [field]: value } : item))
+      prev.map((item, i) => (i === index ? { ...item, [field]: value } : item)),
     );
   };
 
@@ -213,44 +220,44 @@ export default function AddRecipeForm({
     e.preventDefault();
     setIsSubmitting(true);
 
-    // Filter out rows without a selected ingredient or quantity
-    const ingredientsToSend = ingredients
-      .filter((ing) => ing.ingredient_id && ing.quantity && ing.unit)
-      .map(({ ingredient_id, quantity, unit }) => ({
-        ingredient_id,
-        quantity: parseFloat(quantity),
-        unit: unit.trim(),
-      }));
-
-    if (ingredientsToSend.length === 0) {
-      alert("Please select and enter quantity for at least one ingredient.");
-      setIsSubmitting(false);
-      return;
-    }
-
     try {
-      const res = await customFetch("/api/recipes", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
+      // Filter out rows without a selected ingredient or quantity
+      const ingredientsToSend = ingredients
+        .filter((ing) => ing.ingredient_id && ing.quantity && ing.unit)
+        .map(({ ingredient_id, quantity, unit }) => ({
+          ingredient_id,
+          quantity: parseFloat(quantity),
+          unit: unit.trim(),
+        }));
+
+      if (ingredientsToSend.length === 0) {
+        alert("Please select and enter quantity for at least one ingredient.");
+        return;
+      }
+
+      // ✨ CLEAN: Use API client instead of manual fetch
+      await recipesApi.create(
+        {
           name,
           servings: Number(servings),
           ingredients: ingredientsToSend,
-        }),
-      });
+        },
+        customFetch,
+      );
 
-      const data = await res.json();
-
-      if (res.ok && data.success) {
-        alert("Recipe created successfully! 🎉");
-        fetchRecipes(); // Refresh the recipe list
-        closeModal(); // Use the callback for cleanup
-      } else {
-        alert(`Failed to create recipe: ${data.message || "Unknown error"}`);
-      }
+      // Success!
+      alert("Recipe created successfully! 🎉");
+      fetchRecipes();
+      closeModal();
     } catch (error) {
+      // ✨ CLEAN: Type-safe error handling
+      const errorMessage =
+        error instanceof ApiError
+          ? error.message
+          : "An unexpected error occurred during submission.";
+
       console.error("Error creating recipe:", error);
-      alert("An unexpected error occurred during submission.");
+      alert(`Failed to create recipe: ${errorMessage}`);
     } finally {
       setIsSubmitting(false);
     }
@@ -281,7 +288,7 @@ export default function AddRecipeForm({
 
   return (
     <>
-      {/* Trigger Button (Styled to fit a common theme) */}
+      {/* Trigger Button */}
       <button
         onClick={openModal}
         className="cursor-pointer bg-[#3A8F9E] hover:bg-[#337E8D] text-white py-2 px-4 rounded-md font-semibold transition-colors duration-200 shadow-md flex items-center gap-2"
@@ -419,7 +426,7 @@ export default function AddRecipeForm({
                       <div className="w-1/6 min-w-[60px]">
                         <label className="sr-only">Unit</label>
                         {ing.isSelected && ing.selectedIngredient ? (
-                          <select // <- Changed to select
+                          <select
                             value={ing.unit}
                             onChange={(e) =>
                               handleInputChange(idx, "unit", e.target.value)
@@ -430,26 +437,25 @@ export default function AddRecipeForm({
                           >
                             {/* Map through the available units */}
                             {ing.selectedIngredient.units.map((unit) => (
-                              <option key={unit.id} value={unit.unit_name}>
-                                {unit.unit_name}
+                              <option key={unit.id} value={unit.unitName}>
+                                {unit.unitName}
                               </option>
                             ))}
-                            {/* Fallback option for serving_unit if not in units list */}
-                            {ing.selectedIngredient.serving_unit &&
+                            {/* Fallback option for servingUnit if not in units list */}
+                            {ing.selectedIngredient.servingUnit &&
                               !ing.selectedIngredient.units.some(
                                 (u) =>
-                                  u.unit_name ===
-                                  ing.selectedIngredient!.serving_unit
+                                  u.unitName ===
+                                  ing.selectedIngredient!.servingUnit,
                               ) && (
                                 <option
-                                  value={ing.selectedIngredient.serving_unit}
+                                  value={ing.selectedIngredient.servingUnit}
                                 >
-                                  {ing.selectedIngredient.serving_unit}
+                                  {ing.selectedIngredient.servingUnit}
                                 </option>
                               )}
                           </select>
                         ) : (
-                          // Disabled placeholder when no ingredient is selected
                           <input
                             type="text"
                             placeholder="Unit"
@@ -467,11 +473,6 @@ export default function AddRecipeForm({
                           <div className="flex items-center justify-between px-3 py-2 bg-[#C9E6EA]/50 dark:bg-[#3A8F9E]/30 rounded-lg border border-[#3A8F9E]/40 dark:border-[#3A8F9E] text-sm font-semibold text-[#3A8F9E] dark:text-white transition-colors">
                             <span className="truncate">
                               {ing.selectedIngredient?.name}
-                              {/* {ing.selectedIngredient?.brand && (
-                                <span className="text-xs text-[#3A8F9E] dark:text-[#C9E6EA] ml-1">
-                                  ({ing.selectedIngredient.brand})
-                                </span>
-                              )} */}
                             </span>
                             <button
                               type="button"
@@ -527,24 +528,22 @@ export default function AddRecipeForm({
                                   <div className="font-semibold text-zinc-900 dark:text-white leading-tight">
                                     {res.name}
                                   </div>
-                                  {res.brand ||
-                                  res.serving_unit ||
-                                  res.units ? (
+                                  {res.brand || res.servingUnit || res.units ? (
                                     <div className="text-xs text-zinc-600 dark:text-zinc-400 mt-0.5">
                                       {res.brand && (
                                         <span className="border-r-1 pr-1 mr-1 border-r-zinc-600 dark:border-r-zinc-400">
                                           {res.brand}
                                         </span>
                                       )}
-                                      {(res.serving_unit || res.units) && (
+                                      {(res.servingUnit || res.units) && (
                                         <span className="font-mono text-xs text-[#3A8F9E] dark:text-[#C9E6EA]">
                                           {
-                                            res.units.find((u) => u.is_default)
+                                            res.units.find((u) => u.isDefault)
                                               ?.amount
                                           }{" "}
                                           {
-                                            res.units.find((u) => u.is_default)
-                                              ?.unit_name
+                                            res.units.find((u) => u.isDefault)
+                                              ?.unitName
                                           }
                                         </span>
                                       )}
@@ -557,13 +556,13 @@ export default function AddRecipeForm({
                                         (n) => (
                                           <span key={n.id}>
                                             {
-                                              ALL_NUTRIENTS_DICT[n.nutrient_key]
-                                                .display_name
+                                              ALL_NUTRIENTS_DICT[n.nutrientKey]
+                                                ?.display_name
                                             }
                                             : {n.amount}
                                             {n.unit}
                                           </span>
-                                        )
+                                        ),
                                       )}
                                     </div>
                                   )}
@@ -603,11 +602,11 @@ export default function AddRecipeForm({
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="cursor-pointer px-8 py-2.5 bg-[#3A8F9E] hover:bg-[#337E8D] text-white rounded-xl font-bold transition-colors shadow-md shadow-[#3A8F9E]/30 dark:shadow-[#3A8F9E]/20 disabled:cursor-not-allowed"
+                  className="cursor-pointer px-8 py-2.5 bg-[#3A8F9E] hover:bg-[#337E8D] text-white rounded-xl font-bold transition-colors shadow-md shadow-[#3A8F9E]/30 dark:shadow-[#3A8F9E]/20 disabled:cursor-not-allowed flex items-center gap-2"
                 >
                   {isSubmitting ? (
                     <>
-                      <LuLoader size={18} className="animate-spin mr-2" />
+                      <LuLoader size={18} className="animate-spin" />
                       Saving...
                     </>
                   ) : (

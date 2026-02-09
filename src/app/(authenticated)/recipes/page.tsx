@@ -4,37 +4,13 @@ import { ALL_NUTRIENTS_DICT } from "@/constants/constants";
 import React, { useEffect, useMemo, useState } from "react";
 import AddRecipeForm from "@/components/add-recipe-form";
 import { LuChefHat } from "react-icons/lu";
-import { useFetch } from "@/providers/demo-provider";
-
-type Ingredient = {
-  id: string;
-  name: string;
-  brand: string | null;
-  serving_size: number | null;
-  serving_unit: string | null;
-};
-
-type RecipeIngredient = {
-  quantity: number;
-  unit: string;
-  ingredient: Ingredient;
-};
-
-type Recipe = {
-  id: string;
-  name: string;
-  servings: number;
-  created_at: string;
-  recipe_ingredients: RecipeIngredient[];
-  recipe_nutrients: Nutrient[];
-};
-
-type Nutrient = {
-  nutrient_key: string;
-  display_name: string;
-  unit: string;
-  total_amount: number;
-};
+import { useApiClient } from "@/lib/hooks";
+import {
+  recipesApi,
+  type Recipe,
+  type RecipeNutrient,
+  ApiError,
+} from "@/lib/api";
 
 const SORTABLE_KEYS = [
   { key: "name", display: "Name" },
@@ -94,7 +70,7 @@ function RecipeNutrients({
   loading,
 }: {
   servings: number;
-  nutrients: Nutrient[];
+  nutrients: RecipeNutrient[];
   loading: boolean;
 }) {
   const [showPerServing, setShowPerServing] = useState(true);
@@ -117,12 +93,12 @@ function RecipeNutrients({
 
   const getMainNutrients = () => {
     const mainKeys = ["calories", "protein", "total_fat", "total_carbs"];
-    return nutrients.filter((n) => mainKeys.includes(n.nutrient_key));
+    return nutrients.filter((n) => mainKeys.includes(n.nutrientKey));
   };
 
   const getOtherNutrients = () => {
     const mainKeys = ["calories", "protein", "total_fat", "total_carbs"];
-    return nutrients.filter((n) => !mainKeys.includes(n.nutrient_key));
+    return nutrients.filter((n) => !mainKeys.includes(n.nutrientKey));
   };
 
   return (
@@ -143,20 +119,20 @@ function RecipeNutrients({
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
         {getMainNutrients().map((nutrient) => (
           <div
-            key={nutrient.nutrient_key}
+            key={nutrient.nutrientKey}
             className="dark:bg-zinc-700/40 bg-zinc-50 p-4 rounded-xl text-center"
           >
             <div className="text-2xl font-bold text-[#337E8D] dark:text-[#C9E6EA]">
               {showPerServing
-                ? (nutrient.total_amount / servings).toFixed(0)
-                : nutrient.total_amount.toFixed(0)}
+                ? (nutrient.totalAmount / servings).toFixed(0)
+                : nutrient.totalAmount.toFixed(0)}
               <span className="text-xs text-[#337E8D] dark:text-[#C9E6EA] uppercase tracking-wide font-bold ml-1">
                 {nutrient.unit}
               </span>
             </div>
             <div className="text-sm font-medium text-[#337E8D] dark:text-[#C9E6EA] mt-2">
-              {ALL_NUTRIENTS_DICT[nutrient.nutrient_key]?.display_name ||
-                nutrient.nutrient_key}
+              {ALL_NUTRIENTS_DICT[nutrient.nutrientKey]?.display_name ||
+                nutrient.nutrientKey}
             </div>
           </div>
         ))}
@@ -171,17 +147,17 @@ function RecipeNutrients({
           <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
             {getOtherNutrients().map((nutrient) => (
               <div
-                key={nutrient.nutrient_key}
+                key={nutrient.nutrientKey}
                 className="flex items-center justify-between p-3 bg-zinc-50 dark:bg-zinc-700/40 rounded-lg"
               >
                 <span className="text-sm text-zinc-700 dark:text-zinc-300">
-                  {ALL_NUTRIENTS_DICT[nutrient.nutrient_key]?.display_name ||
-                    nutrient.nutrient_key}
+                  {ALL_NUTRIENTS_DICT[nutrient.nutrientKey]?.display_name ||
+                    nutrient.nutrientKey}
                 </span>
                 <span className="text-sm font-medium text-zinc-900 dark:text-white">
                   {showPerServing
-                    ? (nutrient.total_amount / servings).toFixed(1)
-                    : nutrient.total_amount.toFixed(1)}{" "}
+                    ? (nutrient.totalAmount / servings).toFixed(1)
+                    : nutrient.totalAmount.toFixed(1)}{" "}
                   {nutrient.unit}
                 </span>
               </div>
@@ -200,21 +176,25 @@ function RecipeNutrients({
 export default function RecipePage() {
   const [recipes, setRecipes] = useState<Recipe[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [expandedRecipe, setExpandedRecipe] = useState<string | null>(null);
   const [sortKey, setSortKey] = useState<string>("created_at");
   const [sortDirection, setSortDirection] = useState<"desc" | "asc">("desc");
-  const { fetch: customFetch } = useFetch();
+
+  const { customFetch } = useApiClient();
 
   const fetchRecipes = async () => {
     setLoading(true);
+    setError(null);
+
     try {
-      const res = await customFetch("/api/recipes");
-      const data = await res.json();
-      if (data.success) {
-        setRecipes(data.recipes);
-      }
+      const data = await recipesApi.getAll(customFetch);
+      setRecipes(data);
     } catch (err) {
-      console.error("Error fetching recipes:", err);
+      const errorMessage =
+        err instanceof ApiError ? err.message : "Failed to fetch recipes";
+      console.error("Failed to fetch recipes:", err);
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -226,17 +206,15 @@ export default function RecipePage() {
 
   const getRecipeNutrientAmountPerServing = (
     recipe: Recipe,
-    nutrientKey: string
+    nutrientKey: string,
   ): number => {
-    const nutrient = recipe.recipe_nutrients.find(
-      (n) => n.nutrient_key === nutrientKey
+    const nutrient = recipe.recipeNutrients.find(
+      (n) => n.nutrientKey === nutrientKey,
     );
-    return nutrient ? nutrient.total_amount / recipe.servings : 0;
+    return nutrient ? nutrient.totalAmount / recipe.servings : 0;
   };
 
-
   const sortedRecipes = useMemo(() => {
-
     const sorted = [...recipes];
 
     sorted.sort((a, b) => {
@@ -247,8 +225,8 @@ export default function RecipePage() {
         aValue = a.name.toLowerCase();
         bValue = b.name.toLowerCase();
       } else if (sortKey === "created_at") {
-        aValue = a.created_at;
-        bValue = b.created_at;
+        aValue = a.createdAt;
+        bValue = b.createdAt;
       } else {
         aValue = getRecipeNutrientAmountPerServing(a, sortKey);
         bValue = getRecipeNutrientAmountPerServing(b, sortKey);
@@ -268,10 +246,8 @@ export default function RecipePage() {
 
   const handleSortChange = (key: string) => {
     if (key === sortKey) {
-
       setSortDirection(sortDirection === "asc" ? "desc" : "asc");
     } else {
-
       setSortKey(key);
       if (key === "created_at") {
         setSortDirection("desc");
@@ -281,11 +257,11 @@ export default function RecipePage() {
     }
   };
 
-  function getPreviewNutrients(nutrients: Nutrient[]) {
+  function getPreviewNutrients(nutrients: RecipeNutrient[]) {
     const keys = ["calories", "protein", "total_carbs"];
-    const dict: Record<string, Nutrient | undefined> = {};
+    const dict: Record<string, RecipeNutrient | undefined> = {};
     for (const k of keys) {
-      dict[k] = nutrients.find((n) => n.nutrient_key === k);
+      dict[k] = nutrients.find((n) => n.nutrientKey === k);
     }
     return dict;
   }
@@ -301,6 +277,25 @@ export default function RecipePage() {
       day: "numeric",
     });
   };
+
+  if (error) {
+    return (
+      <div className="p-6 min-h-screen">
+        <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl p-6 max-w-md mx-auto">
+          <h3 className="text-lg font-semibold text-red-800 dark:text-red-200 mb-2">
+            Error loading recipes
+          </h3>
+          <p className="text-red-600 dark:text-red-300 text-sm mb-4">{error}</p>
+          <button
+            onClick={fetchRecipes}
+            className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+          >
+            Try Again
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   if (loading) {
     return (
@@ -369,7 +364,6 @@ export default function RecipePage() {
             `}
           >
             {item.display}{" "}
-            {/* Display icon for active sort key and direction */}
             {sortKey === item.key && (sortDirection === "asc" ? "↑" : "↓")}
           </button>
         ))}
@@ -418,14 +412,14 @@ export default function RecipePage() {
                         d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
                       />
                     </svg>
-                    {formatDate(recipe.created_at)}
+                    {formatDate(recipe.createdAt)}
                   </span>
                 </div>
                 <div className="mt-2">
                   <div className="flex gap-6 text-sm text-zinc-800 dark:text-zinc-200">
                     {(() => {
                       const preview = getPreviewNutrients(
-                        recipe.recipe_nutrients
+                        recipe.recipeNutrients,
                       );
                       return (
                         <>
@@ -433,7 +427,7 @@ export default function RecipePage() {
                             <span className="font-bold">
                               {preview.calories
                                 ? (
-                                    preview.calories.total_amount /
+                                    preview.calories.totalAmount /
                                     recipe.servings
                                   ).toFixed(0)
                                 : "--"}
@@ -444,7 +438,7 @@ export default function RecipePage() {
                             <span className="font-bold">
                               {preview.protein
                                 ? (
-                                    preview.protein.total_amount /
+                                    preview.protein.totalAmount /
                                     recipe.servings
                                   ).toFixed(0)
                                 : "--"}
@@ -455,7 +449,7 @@ export default function RecipePage() {
                             <span className="font-bold">
                               {preview.total_carbs
                                 ? (
-                                    preview.total_carbs.total_amount /
+                                    preview.total_carbs.totalAmount /
                                     recipe.servings
                                   ).toFixed(0)
                                 : "--"}
@@ -514,7 +508,7 @@ export default function RecipePage() {
                     All Ingredients
                   </h4>
                   <div className="grid gap-3">
-                    {recipe.recipe_ingredients.map((ri, idx) => (
+                    {recipe.recipeIngredients.map((ri, idx) => (
                       <div
                         key={idx}
                         className="flex items-center justify-between p-3 bg-zinc-50 dark:bg-zinc-700/40 rounded-lg"
@@ -542,7 +536,7 @@ export default function RecipePage() {
                 {/* Nutrition */}
                 <RecipeNutrients
                   servings={recipe.servings}
-                  nutrients={recipe.recipe_nutrients}
+                  nutrients={recipe.recipeNutrients}
                   loading={false}
                 />
               </>

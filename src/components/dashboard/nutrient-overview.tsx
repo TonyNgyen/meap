@@ -31,12 +31,36 @@ type Goal = {
   created_at: string;
 };
 
+type Ingredient = { id: string; name: string; brand: string | null };
+type Recipe = { id: string; name: string };
+
+// Expanded colors to include SVG stroke hex codes
 const colorClasses = {
-  blue: "text-[#3A8F9E] dark:text-[#C9E6EA]",
-  green: "text-green-600 dark:text-green-400",
-  amber: "text-amber-600 dark:text-amber-400",
-  red: "text-red-600 dark:text-red-400",
-  zinc: "text-zinc-600 dark:text-zinc-400",
+  blue: {
+    text: "text-[#3A8F9E] dark:text-[#C9E6EA]",
+    stroke: "#3A8F9E",
+    bg: "stroke-zinc-100 dark:stroke-zinc-700",
+  },
+  green: {
+    text: "text-green-600 dark:text-green-400",
+    stroke: "#16a34a",
+    bg: "stroke-green-100 dark:stroke-green-900/30",
+  },
+  amber: {
+    text: "text-amber-600 dark:text-amber-400",
+    stroke: "#d97706",
+    bg: "stroke-amber-100 dark:stroke-amber-900/30",
+  },
+  red: {
+    text: "text-red-600 dark:text-red-400",
+    stroke: "#dc2626",
+    bg: "stroke-red-100 dark:stroke-red-900/30",
+  },
+  zinc: {
+    text: "text-zinc-600 dark:text-zinc-400",
+    stroke: "#52525b",
+    bg: "stroke-zinc-100 dark:stroke-zinc-700",
+  },
 };
 
 type NutrientCardProps = {
@@ -44,43 +68,104 @@ type NutrientCardProps = {
   value: string;
   subtitle: string;
   color: keyof typeof colorClasses;
+  percent: number | null;
   compact?: boolean;
 };
 
-type Ingredient = { id: string; name: string; brand: string | null };
-type Recipe = { id: string; name: string };
+// Circular Dial Component
+function CircularProgress({
+  percent,
+  colorKey,
+  size = 70,
+}: {
+  percent: number;
+  colorKey: keyof typeof colorClasses;
+  size?: number;
+}) {
+  const radius = 18;
+  const circumference = 2 * Math.PI * radius;
+  // Clamp progress between 0-100 for the visual ring
+  const clampedPercent = Math.min(Math.max(percent, 0), 100);
+  const strokeDashoffset =
+    circumference - (clampedPercent / 100) * circumference;
 
-function NutrientCard({ title, value, subtitle, color }: NutrientCardProps) {
   return (
-    <div className="bg-white dark:bg-zinc-800 rounded-xl shadow-sm border border-zinc-200 dark:border-zinc-700 p-4">
-      <div className={`text-2xl font-bold ${colorClasses[color]}`}>{value}</div>
-      <div className="text-sm font-semibold text-zinc-600 dark:text-zinc-400 mt-1">
-        {title}
-      </div>
-      <div className="text-xs text-zinc-500 dark:text-zinc-500 mt-1">
-        {subtitle}
-      </div>
+    <div
+      className="relative flex items-center justify-center"
+      style={{ width: size, height: size }}
+    >
+      <svg
+        width={size}
+        height={size}
+        viewBox="0 0 44 44"
+        className="transform -rotate-90"
+      >
+        <circle
+          cx="22"
+          cy="22"
+          r={radius}
+          strokeWidth="4"
+          fill="transparent"
+          className={colorClasses[colorKey].bg}
+        />
+        <circle
+          cx="22"
+          cy="22"
+          r={radius}
+          strokeWidth="4"
+          fill="transparent"
+          stroke={colorClasses[colorKey].stroke}
+          strokeDasharray={circumference}
+          style={{
+            strokeDashoffset,
+            transition: "stroke-dashoffset 0.8s ease-out",
+            strokeLinecap: "round",
+          }}
+        />
+      </svg>
     </div>
   );
 }
 
-// Skeleton loading component
-function NutrientCardSkeleton({ compact = false }: { compact?: boolean }) {
-  if (compact) {
-    return (
-      <div className="bg-white dark:bg-zinc-800 rounded-lg border border-zinc-200 dark:border-zinc-700 p-3 animate-pulse">
-        <div className="h-5 bg-zinc-200 dark:bg-zinc-700 rounded w-16 mb-2"></div>
-        <div className="h-3 bg-zinc-200 dark:bg-zinc-700 rounded w-full mb-2"></div>
-        <div className="h-3 bg-zinc-200 dark:bg-zinc-700 rounded w-3/4"></div>
-      </div>
-    );
-  }
-
+function NutrientCard({
+  title,
+  value,
+  subtitle,
+  color,
+  percent,
+}: NutrientCardProps) {
   return (
-    <div className="bg-white dark:bg-zinc-800 rounded-xl shadow-sm border border-zinc-200 dark:border-zinc-700 p-4 animate-pulse">
-      <div className="h-8 bg-zinc-200 dark:bg-zinc-700 rounded w-20 mb-2"></div>
-      <div className="h-4 bg-zinc-200 dark:bg-zinc-700 rounded w-full mb-2"></div>
-      <div className="h-3 bg-zinc-200 dark:bg-zinc-700 rounded w-3/4"></div>
+    <div className="bg-white dark:bg-zinc-800 rounded-xl shadow-sm border border-zinc-200 dark:border-zinc-700 p-4 flex items-center justify-between">
+      <div className="flex-1 min-w-0">
+        <div
+          className={`text-2xl font-bold truncate ${colorClasses[color].text}`}
+        >
+          {value}
+        </div>
+        <div className="text-sm font-semibold text-zinc-600 dark:text-zinc-400 mt-1 truncate">
+          {title}
+        </div>
+        <div className="text-xs text-zinc-500 dark:text-zinc-500 mt-1 truncate">
+          {subtitle}
+        </div>
+      </div>
+      {percent !== null && (
+        <div className="flex-shrink-0">
+          <CircularProgress percent={percent} colorKey={color} />
+        </div>
+      )}
+    </div>
+  );
+}
+
+function NutrientCardSkeleton() {
+  return (
+    <div className="bg-white dark:bg-zinc-800 rounded-xl shadow-sm border border-zinc-200 dark:border-zinc-700 p-4 animate-pulse flex justify-between items-center">
+      <div className="space-y-2 flex-1">
+        <div className="h-8 bg-zinc-200 dark:bg-zinc-700 rounded w-20"></div>
+        <div className="h-4 bg-zinc-200 dark:bg-zinc-700 rounded w-3/4"></div>
+      </div>
+      <div className="w-12 h-12 bg-zinc-200 dark:bg-zinc-700 rounded-full ml-4"></div>
     </div>
   );
 }
@@ -90,9 +175,9 @@ const NutrientOverview = forwardRef(
     const [foodLogs, setFoodLogs] = useState<FoodLog[]>([]);
     const [goals, setGoals] = useState<Goal[]>([]);
     const [activeTab, setActiveTab] = useState("main");
-    // const [selectedDate, setSelectedDate] = useState(
-    //   new Date().toISOString().split("T")[0]
-    // );
+    const [isLoading, setIsLoading] = useState(true);
+    const { fetch: customFetch } = useFetch();
+
     const now = new Date();
     const selectedDate =
       now.getFullYear() +
@@ -100,8 +185,6 @@ const NutrientOverview = forwardRef(
       String(now.getMonth() + 1).padStart(2, "0") +
       "-" +
       String(now.getDate()).padStart(2, "0");
-    const [isLoading, setIsLoading] = useState(true);
-    const { fetch: customFetch } = useFetch();
 
     const fetchFoodLogs = async (date: string) => {
       const res = await customFetch(`/api/food-logs?date=${date}`);
@@ -137,13 +220,11 @@ const NutrientOverview = forwardRef(
         await Promise.all([fetchFoodLogs(today), fetchGoals()]);
         setIsLoading(false);
       };
-
       loadInitialData();
     }, []);
 
     const getTotalNutrients = () => {
       const totals: { [key: string]: { amount: number; unit: string } } = {};
-
       foodLogs.forEach((log) => {
         log.nutrients?.forEach((nutrient) => {
           if (!totals[nutrient.nutrient_key]) {
@@ -152,7 +233,6 @@ const NutrientOverview = forwardRef(
           totals[nutrient.nutrient_key].amount += nutrient.amount;
         });
       });
-
       return totals;
     };
 
@@ -183,7 +263,6 @@ const NutrientOverview = forwardRef(
 
     const nutrientData = combineGoalsAndTotals();
 
-    // Categorize nutrients
     const categorizedNutrients = {
       main: nutrientData.filter((n) =>
         ["calories", "protein", "total_fat", "total_carbs"].includes(
@@ -254,18 +333,18 @@ const NutrientOverview = forwardRef(
       ),
     };
 
-    const getColor = (percent: number | null, hasGoal: boolean) => {
+    const getColor = (
+      percent: number | null,
+      hasGoal: boolean,
+    ): keyof typeof colorClasses => {
       if (!hasGoal) return "blue";
-      if (!percent) return "zinc";
+      if (percent === null) return "zinc";
       if (percent >= 90) return "green";
       if (percent >= 70) return "amber";
       return "red";
     };
 
-    // Check if there are no food logs
     const hasNoFoodLogs = foodLogs.length === 0;
-
-    // Check if there are no nutrients to display
     const hasNoNutrients = nutrientData.length === 0;
 
     const handleLogSuccess = () => {
@@ -286,8 +365,8 @@ const NutrientOverview = forwardRef(
                 <div className="h-8 bg-zinc-200 dark:bg-zinc-700 rounded w-20 animate-pulse"></div>
                 <div className="h-8 bg-zinc-200 dark:bg-zinc-700 rounded w-20 animate-pulse"></div>
               </div>
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                {[...Array(4)].map((_, i) => (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {[...Array(6)].map((_, i) => (
                   <NutrientCardSkeleton key={i} />
                 ))}
               </div>
@@ -334,17 +413,17 @@ const NutrientOverview = forwardRef(
           ) : (
             <>
               <div className="border-b border-zinc-200 dark:border-zinc-700 mb-4">
-                <nav className="flex space-x-4">
+                <nav className="flex space-x-4 overflow-x-auto no-scrollbar">
                   {Object.entries(categorizedNutrients)
                     .filter(([, nutrients]) => nutrients.length > 0)
                     .map(([category]) => (
                       <button
                         key={category}
                         onClick={() => setActiveTab(category)}
-                        className={`px-3 py-2 text-sm font-medium rounded-t ${
+                        className={`px-3 py-2 text-sm font-medium rounded-t whitespace-nowrap transition-colors ${
                           activeTab === category
                             ? "text-[#3A8F9E] dark:text-[#C9E6EA] border-b-2 border-[#3A8F9E] dark:border-[#C9E6EA]"
-                            : "text-zinc-400 hover:text-[#3A8F9E] dark:hover:text-[#C9E6EA] border-b-2 border-transparent hover:border-[#3A8F9E] dark:hover:border-[#C9E6EA] cursor-pointer"
+                            : "text-zinc-400 hover:text-[#3A8F9E] dark:hover:text-[#C9E6EA] border-b-2 border-transparent cursor-pointer"
                         }`}
                       >
                         {category.charAt(0).toUpperCase() + category.slice(1)}
@@ -353,7 +432,7 @@ const NutrientOverview = forwardRef(
                 </nav>
               </div>
 
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                 {categorizedNutrients[
                   activeTab as keyof typeof categorizedNutrients
                 ].map((nutrient) => (
@@ -367,10 +446,10 @@ const NutrientOverview = forwardRef(
                     subtitle={
                       nutrient.hasGoal
                         ? `${nutrient.percent?.toFixed(0)}% of goal`
-                        : ""
+                        : "No goal set"
                     }
                     color={getColor(nutrient.percent, nutrient.hasGoal)}
-                    compact={activeTab !== "main"}
+                    percent={nutrient.percent}
                   />
                 ))}
               </div>
