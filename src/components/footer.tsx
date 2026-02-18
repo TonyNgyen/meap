@@ -5,7 +5,7 @@ function Footer() {
 
   return (
     <footer className="w-full bg-[#F7F9FA] dark:bg-zinc-900 border-t border-zinc-200 dark:border-zinc-700">
-      <div className="mx-auto px-96 py-12">
+      <div className="mx-auto w-4xl py-12">
         {/* Main Footer Content */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
           {/* Brand Section */}
