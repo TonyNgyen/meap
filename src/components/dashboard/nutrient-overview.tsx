@@ -65,7 +65,8 @@ const colorClasses = {
 
 type NutrientCardProps = {
   title: string;
-  value: string;
+  amount: string; // Changed from 'value'
+  unit: string; // Added
   subtitle: string;
   color: keyof typeof colorClasses;
   percent: number | null;
@@ -129,31 +130,44 @@ function CircularProgress({
 
 function NutrientCard({
   title,
-  value,
+  amount,
+  unit,
   subtitle,
   color,
   percent,
 }: NutrientCardProps) {
   return (
-    <div className="bg-white dark:bg-zinc-800 rounded-xl shadow-sm border border-zinc-200 dark:border-zinc-700 p-4 flex items-center justify-between">
-      <div className="flex-1 min-w-0">
-        <div
-          className={`text-2xl font-bold truncate ${colorClasses[color].text}`}
-        >
-          {value}
-        </div>
-        <div className="text-sm font-semibold text-zinc-600 dark:text-zinc-400 mt-1 truncate">
+    <div className="relative overflow-hidden bg-white dark:bg-zinc-800/80 rounded-2xl shadow-sm border border-zinc-100 dark:border-zinc-700/50 p-5 flex items-center justify-between transition-all hover:shadow-md">
+      <div className="flex-1 min-w-0 z-10">
+        <div className="text-xs font-bold uppercase tracking-wide text-zinc-500 dark:text-zinc-400 mb-1 truncate">
           {title}
         </div>
-        <div className="text-xs text-zinc-500 dark:text-zinc-500 mt-1 truncate">
+        <div className="flex items-baseline gap-1 mb-1">
+          <span
+            className={`text-2xl font-extrabold tracking-tight ${colorClasses[color].text}`}
+          >
+            {amount}
+          </span>
+          <span className="text-xs font-semibold text-zinc-400 uppercase">
+            {unit}
+          </span>
+        </div>
+        <div className="text-[10px] font-medium uppercase tracking-wider text-zinc-400 truncate">
           {subtitle}
         </div>
       </div>
+
       {percent !== null && (
-        <div className="flex-shrink-0">
-          <CircularProgress percent={percent} colorKey={color} />
+        <div className="flex-shrink-0 z-10">
+          <CircularProgress percent={percent} colorKey={color} size={56} />
         </div>
       )}
+
+      {/* Subtle background glow based on the nutrient color */}
+      <div
+        className={`absolute -right-4 -bottom-4 w-24 h-24 rounded-full opacity-10 blur-2xl pointer-events-none bg-${colorClasses[color].stroke}`}
+        style={{ backgroundColor: colorClasses[color].stroke }}
+      />
     </div>
   );
 }
@@ -353,44 +367,37 @@ const NutrientOverview = forwardRef(
     };
 
     return (
-      <div className="space-y-6">
-        <div>
-          <h3 className="text-xl font-semibold text-zinc-900 dark:text-white mb-3">
-            Nutrients
-          </h3>
+      <div className="space-y-4">
+        {/* Unified Header Style */}
+        <div className="flex items-center gap-2 mb-2">
+          <div className="w-2 h-2 rounded-full bg-[#3A8F9E] animate-pulse" />
+          <h2 className="text-sm font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">
+            Today's Nutrition
+          </h2>
+        </div>
 
-          {isLoading ? (
-            <div className="space-y-4">
-              <div className="flex space-x-4 border-b border-zinc-200 dark:border-zinc-700 pb-2">
-                <div className="h-8 bg-zinc-200 dark:bg-zinc-700 rounded w-20 animate-pulse"></div>
-                <div className="h-8 bg-zinc-200 dark:bg-zinc-700 rounded w-20 animate-pulse"></div>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {[...Array(6)].map((_, i) => (
-                  <NutrientCardSkeleton key={i} />
-                ))}
-              </div>
+        {isLoading ? (
+          <div className="space-y-4">
+            <div className="flex space-x-4 border-b border-zinc-200 dark:border-zinc-700 pb-2">
+              <div className="h-8 bg-zinc-200 dark:bg-zinc-700 rounded w-20 animate-pulse"></div>
+
+              <div className="h-8 bg-zinc-200 dark:bg-zinc-700 rounded w-20 animate-pulse"></div>
             </div>
-          ) : hasNoFoodLogs ? (
-            <div className="bg-white dark:bg-zinc-800 rounded-xl shadow-sm border border-zinc-200 dark:border-zinc-700 p-10">
-              <h3 className="text-lg font-medium text-zinc-900 dark:text-white mb-2 text-center">
-                No food logged today
-              </h3>
-              <p className="text-zinc-500 dark:text-zinc-400 mb-4 text-center">
-                Log food to see your daily nutrients
-              </p>
-              <div className="flex items-center justify-center">
-                <AddLogForm
-                  selectedDate={selectedDate}
-                  onLogSuccess={handleLogSuccess}
-                />
-              </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {[...Array(6)].map((_, i) => (
+                <NutrientCardSkeleton key={i} />
+              ))}
             </div>
-          ) : hasNoNutrients ? (
-            <div className="bg-white dark:bg-zinc-800 rounded-xl shadow-sm border border-zinc-200 dark:border-zinc-700 p-4 text-center">
-              <div className="text-zinc-400 dark:text-zinc-500 mb-4">
+          </div>
+        ) : hasNoFoodLogs ? (
+          /* Premium Empty State */
+          <div className="flex flex-col items-center justify-center py-16 px-4 bg-zinc-50/50 dark:bg-zinc-800/20 rounded-3xl border border-dashed border-zinc-200 dark:border-zinc-700">
+            <div className="relative mb-6">
+              <div className="absolute inset-0 bg-[#3A8F9E]/10 blur-2xl rounded-full" />
+              <div className="relative flex items-center justify-center w-16 h-16 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-700 shadow-sm">
                 <svg
-                  className="w-16 h-16 mx-auto"
+                  className="w-8 h-8 text-[#3A8F9E]"
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"
@@ -399,63 +406,98 @@ const NutrientOverview = forwardRef(
                     strokeLinecap="round"
                     strokeLinejoin="round"
                     strokeWidth={1.5}
-                    d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"
+                    d="M13 10V3L4 14h7v7l9-11h-7z"
                   />
                 </svg>
               </div>
-              <h3 className="text-lg font-medium text-zinc-900 dark:text-white mb-2">
-                No nutrient data available
-              </h3>
-              <p className="text-zinc-500 dark:text-zinc-400">
-                The logged food items don&apos;t contain nutrient information
-              </p>
             </div>
-          ) : (
-            <>
-              <div className="border-b border-zinc-200 dark:border-zinc-700 mb-4">
-                <nav className="flex space-x-4 overflow-x-auto no-scrollbar">
-                  {Object.entries(categorizedNutrients)
-                    .filter(([, nutrients]) => nutrients.length > 0)
-                    .map(([category]) => (
-                      <button
-                        key={category}
-                        onClick={() => setActiveTab(category)}
-                        className={`px-3 py-2 text-sm font-medium rounded-t whitespace-nowrap transition-colors ${
-                          activeTab === category
-                            ? "text-[#3A8F9E] dark:text-[#C9E6EA] border-b-2 border-[#3A8F9E] dark:border-[#C9E6EA]"
-                            : "text-zinc-400 hover:text-[#3A8F9E] dark:hover:text-[#C9E6EA] border-b-2 border-transparent cursor-pointer"
-                        }`}
-                      >
-                        {category.charAt(0).toUpperCase() + category.slice(1)}
-                      </button>
-                    ))}
-                </nav>
-              </div>
+            <h3 className="text-base font-semibold text-zinc-900 dark:text-white mb-2 text-center">
+              Fuel your day
+            </h3>
+            <p className="text-sm text-zinc-500 dark:text-zinc-400 mb-8 text-center max-w-sm">
+              Log your first meal to generate your daily nutrient breakdown and
+              track your goals.
+            </p>
+            {/* Wrap the form so it feels like a deliberate action zone */}
+            <div className="w-full max-w-md bg-white dark:bg-zinc-800 p-2 rounded-2xl shadow-sm border border-zinc-100 dark:border-zinc-700">
+              <AddLogForm
+                selectedDate={selectedDate}
+                onLogSuccess={handleLogSuccess}
+              />
+            </div>
+          </div>
+        ) : hasNoNutrients ? (
+          <div className="bg-white dark:bg-zinc-800 rounded-xl shadow-sm border border-zinc-200 dark:border-zinc-700 p-4 text-center">
+            <div className="text-zinc-400 dark:text-zinc-500 mb-4">
+              <svg
+                className="w-16 h-16 mx-auto"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={1.5}
+                  d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"
+                />
+              </svg>
+            </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                {categorizedNutrients[
-                  activeTab as keyof typeof categorizedNutrients
-                ].map((nutrient) => (
-                  <NutrientCard
-                    key={nutrient.nutrient_key}
-                    title={
-                      ALL_NUTRIENTS_DICT[nutrient.nutrient_key]?.display_name ||
-                      nutrient.nutrient_key
-                    }
-                    value={`${nutrient.consumed.toFixed(0)}${nutrient.unit}`}
-                    subtitle={
-                      nutrient.hasGoal
-                        ? `${nutrient.percent?.toFixed(0)}% of goal`
-                        : "No goal set"
-                    }
-                    color={getColor(nutrient.percent, nutrient.hasGoal)}
-                    percent={nutrient.percent}
-                  />
+            <h3 className="text-lg font-medium text-zinc-900 dark:text-white mb-2">
+              No nutrient data available
+            </h3>
+
+            <p className="text-zinc-500 dark:text-zinc-400">
+              The logged food items don&apos;t contain nutrient information
+            </p>
+          </div>
+        ) : (
+          <>
+            {/* Modern Segmented Control Tabs */}
+            <div className="inline-flex p-1 bg-zinc-100 dark:bg-zinc-800 rounded-xl overflow-x-auto no-scrollbar max-w-full border border-zinc-200/50 dark:border-zinc-700/50 shadow-inner">
+              {Object.entries(categorizedNutrients)
+                .filter(([, nutrients]) => nutrients.length > 0)
+                .map(([category]) => (
+                  <button
+                    key={category}
+                    onClick={() => setActiveTab(category)}
+                    className={`px-4 py-1.5 text-xs font-bold uppercase tracking-wide rounded-lg whitespace-nowrap transition-all ${
+                      activeTab === category
+                        ? "bg-white dark:bg-zinc-700 text-[#3A8F9E] dark:text-[#C9E6EA] shadow-sm"
+                        : "text-zinc-500 dark:text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-300"
+                    }`}
+                  >
+                    {category}
+                  </button>
                 ))}
-              </div>
-            </>
-          )}
-        </div>
+            </div>
+
+            {/* Data Grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              {categorizedNutrients[
+                activeTab as keyof typeof categorizedNutrients
+              ].map((nutrient) => (
+                <NutrientCard
+                  key={nutrient.nutrient_key}
+                  title={
+                    ALL_NUTRIENTS_DICT[nutrient.nutrient_key]?.display_name ||
+                    nutrient.nutrient_key
+                  }
+                  amount={nutrient.consumed.toFixed(0)} // Passed separately now
+                  unit={nutrient.unit} // Passed separately now
+                  subtitle={
+                    nutrient.hasGoal
+                      ? `${nutrient.percent?.toFixed(0)}% of goal`
+                      : "No goal set"
+                  }
+                  color={getColor(nutrient.percent, nutrient.hasGoal)}
+                  percent={nutrient.percent}
+                />
+              ))}
+            </div>
+          </>
+        )}
       </div>
     );
   },

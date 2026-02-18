@@ -20,29 +20,29 @@ type InventoryItemType = {
   unit: string;
 };
 
-function InventoryItem({
-  name,
-  quantity,
-}: {
-  name: string;
-  quantity: string;
-  status?: string;
-}) {
-  // const statusColors = {
-  //   low: "text-red-600 dark:text-red-400",
-  //   medium: "text-amber-600 dark:text-amber-400",
-  //   good: "text-green-600 dark:text-green-400",
-  // };
+// function InventoryItem({
+//   name,
+//   quantity,
+// }: {
+//   name: string;
+//   quantity: string;
+//   status?: string;
+// }) {
+//   // const statusColors = {
+//   //   low: "text-red-600 dark:text-red-400",
+//   //   medium: "text-amber-600 dark:text-amber-400",
+//   //   good: "text-green-600 dark:text-green-400",
+//   // };
 
-  return (
-    <div className="flex justify-between items-center p-3 bg-zinc-50 dark:bg-zinc-700 rounded-lg">
-      <span className="text-zinc-900 dark:text-white">{name}</span>
-      <span className={`text-sm font-bold text-[#3A8F9E] dark:text-[#C9E6EA]`}>
-        {quantity}
-      </span>
-    </div>
-  );
-}
+//   return (
+//     <div className="flex justify-between items-center p-3 bg-zinc-50 dark:bg-zinc-700 rounded-lg">
+//       <span className="text-zinc-900 dark:text-white">{name}</span>
+//       <span className={`text-sm font-bold text-[#3A8F9E] dark:text-[#C9E6EA]`}>
+//         {quantity}
+//       </span>
+//     </div>
+//   );
+// }
 
 // Skeleton component for loading state
 function InventoryItemSkeleton() {
@@ -57,7 +57,7 @@ function InventoryItemSkeleton() {
 // Updated Empty State specifically for use inside Cards
 function EmptyInventoryState() {
   return (
-    <div className="flex flex-col items-center justify-center py-10">
+    <div className="flex flex-col items-center justify-center">
       {/* Icon with a "Soft" Presence */}
       <div className="relative mb-4">
         <div className="absolute inset-0 bg-[#3A8F9E]/10 blur-xl rounded-full" />{" "}
@@ -96,7 +96,6 @@ const InventoryCard = forwardRef<
   const [inventoryItems, setInventoryItems] = useState(initialInventoryItems);
   const [isLoading, setIsLoading] = useState(false);
 
-  // Initialize with prop data
   useEffect(() => {
     setInventoryItems(initialInventoryItems);
   }, [initialInventoryItems]);
@@ -106,9 +105,7 @@ const InventoryCard = forwardRef<
     try {
       const res = await fetch("/api/inventory");
       const data = await res.json();
-      if (data.success) {
-        setInventoryItems(data.inventory);
-      }
+      if (data.success) setInventoryItems(data.inventory);
     } catch (error) {
       console.error("Error fetching inventory:", error);
     } finally {
@@ -116,44 +113,65 @@ const InventoryCard = forwardRef<
     }
   };
 
-  useImperativeHandle(ref, () => ({
-    refresh,
-  }));
+  useImperativeHandle(ref, () => ({ refresh }));
 
   return (
-    <div className="bg-white dark:bg-zinc-800 rounded-xl shadow-sm border border-zinc-200 dark:border-zinc-700 p-6">
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="text-xl font-semibold text-zinc-900 dark:text-white">
-          Inventory Status
-        </h2>
-        {/* <span className="text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 px-2 py-1 rounded-full">
-          3 items low
-        </span> */}
+    // P-5 and h-full to match RecentMealsCard exactly
+    <div className="bg-white dark:bg-zinc-800 rounded-xl shadow-sm border border-zinc-200 dark:border-zinc-700 p-5 flex flex-col h-full">
+      {/* HEADER: Matches the "Label" style of Recent Meals */}
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center gap-2">
+          <LuBox className="w-4 h-4 text-zinc-400" />
+          <h2 className="text-sm font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">
+            Inventory Status
+          </h2>
+        </div>
+        {/* Slot for future 'Low Stock' badge if needed */}
       </div>
 
-      {isLoading ? (
-        <div className="space-y-2">
-          <InventoryItemSkeleton />
-          <InventoryItemSkeleton />
-          <InventoryItemSkeleton />
-          <InventoryItemSkeleton />
-        </div>
-      ) : inventoryItems.length === 0 ? (
-        <EmptyInventoryState />
-      ) : (
-        <div className="space-y-2 max-h-[232px] overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-zinc-300 dark:scrollbar-thumb-zinc-600">
-          {inventoryItems.map((item) => (
-            <InventoryItem
-              key={item.id}
-              name={item.ingredient?.name || item.recipe?.name || ""}
-              quantity={`${item.quantity} ${item.unit}`}
-            />
-          ))}
-        </div>
-      )}
+      <div className="flex-1 overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-zinc-200 dark:scrollbar-thumb-zinc-700">
+        {isLoading ? (
+          <div className="space-y-2">
+            {[...Array(4)].map((_, i) => (
+              <InventoryItemSkeleton key={i} />
+            ))}
+          </div>
+        ) : inventoryItems.length === 0 ? (
+          <EmptyInventoryState />
+        ) : (
+          <div className="space-y-1">
+            {inventoryItems.map((item) => (
+              <InventoryItem
+                key={item.id}
+                name={item.ingredient?.name || item.recipe?.name || ""}
+                quantity={`${item.quantity} ${item.unit}`}
+              />
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 });
+
+function InventoryItem({ name, quantity }: { name: string; quantity: string }) {
+  return (
+    // Transparent by default, hover state matches Recent Meals
+    <div className="group flex justify-between items-center p-3 rounded-xl border border-transparent hover:border-zinc-100 dark:hover:border-zinc-700 hover:bg-zinc-50/50 dark:hover:bg-zinc-900/50 transition-all">
+      <span className="text-sm font-semibold text-zinc-800 dark:text-zinc-200 group-hover:text-[#3A8F9E] transition-colors">
+        {name}
+      </span>
+      <div className="flex flex-col items-end">
+        <span className="text-sm font-bold text-zinc-900 dark:text-zinc-100">
+          {quantity.split(" ")[0]}
+        </span>
+        <span className="text-[10px] font-medium text-zinc-400 uppercase">
+          {quantity.split(" ")[1]}
+        </span>
+      </div>
+    </div>
+  );
+}
 
 InventoryCard.displayName = "InventoryCard";
 

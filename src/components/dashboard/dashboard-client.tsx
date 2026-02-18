@@ -148,55 +148,53 @@ export default function DashboardClient({
       />
 
       {/* Quick Actions */}
-      <h3 className="text-xl font-semibold text-zinc-900 dark:text-white mb-3">
-        Quick Actions
-      </h3>
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-        {/* Log Food Button - opens modal */}
+      <div className="flex items-center gap-2 mb-4 mt-8">
+        <h2 className="text-sm font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">
+          Quick Actions
+        </h2>
+      </div>
+
+      {/* Sleek Horizontal Layout */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 mb-8">
+        {/* Log Food Button */}
         <button
           onClick={() => setIsLogModalOpen(true)}
-          className="hover:shadow-[#C9E6EA] hover:border-[#C9E6EA]  text-zinc-900 dark:text-white bg-white dark:bg-zinc-800 shadow-sm border border-zinc-200 dark:border-zinc-700 p-6 rounded-xl text-center transition-colors transform hover:scale-105 cursor-pointer"
+          className="group flex items-center gap-3 p-3 sm:p-4 bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl hover:border-[#3A8F9E] hover:ring-1 hover:ring-[#3A8F9E]/20 transition-all text-left shadow-sm focus:outline-none"
         >
-          <div className="flex justify-center mb-3">
-            <LuUtensils className="w-7 h-7" />
+          <div className="flex items-center justify-center shrink-0 w-10 h-10 rounded-lg bg-zinc-50 dark:bg-zinc-900 text-[#3A8F9E] group-hover:bg-[#3A8F9E]/10 transition-colors">
+            <LuUtensils className="w-5 h-5" strokeWidth={2} />
           </div>
-          <div className="font-medium">Log Food</div>
+          <span className="text-sm font-semibold text-zinc-900 dark:text-zinc-100 group-hover:text-[#3A8F9E] transition-colors">
+            Log Food
+          </span>
         </button>
+
+        {/* Add Inventory Button */}
         <button
           onClick={() => setIsInventoryModalOpen(true)}
-          className="hover:shadow-[#C9E6EA] hover:border-[#C9E6EA] text-zinc-900 dark:text-white bg-white dark:bg-zinc-800 shadow-sm border border-zinc-200 dark:border-zinc-700 p-6 rounded-xl text-center transition-colors transform hover:scale-105 cursor-pointer"
+          className="group flex items-center gap-3 p-3 sm:p-4 bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl hover:border-[#3A8F9E] hover:ring-1 hover:ring-[#3A8F9E]/20 transition-all text-left shadow-sm focus:outline-none"
         >
-          <div className="flex justify-center mb-3">
-            <LuBoxes className="w-7 h-7" />
+          <div className="flex items-center justify-center shrink-0 w-10 h-10 rounded-lg bg-zinc-50 dark:bg-zinc-900 text-[#3A8F9E] group-hover:bg-[#3A8F9E]/10 transition-colors">
+            <LuBoxes className="w-5 h-5" strokeWidth={2} />
           </div>
-          <div className="font-medium">Add Inventory</div>
+          <span className="text-sm font-semibold text-zinc-900 dark:text-zinc-100 group-hover:text-[#3A8F9E] transition-colors">
+            Add Inventory
+          </span>
         </button>
-        {isDemo ? (
-          <QuickAction
-            icon={<LuUtensils className="w-7 h-7" />}
-            title="Recipes"
-            href="/demo/recipes"
-          />
-        ) : (
-          <QuickAction
-            icon={<LuBookOpen className="w-7 h-7" />}
-            title="Recipes"
-            href="/recipes"
-          />
-        )}
-        {isDemo ? (
-          <QuickAction
-            icon={<LuCarrot className="w-7 h-7" />}
-            title="Ingredients"
-            href="/demo/ingredients"
-          />
-        ) : (
-          <QuickAction
-            icon={<LuCarrot className="w-7 h-7" />}
-            title="Ingredients"
-            href="/ingredients"
-          />
-        )}
+
+        {/* Recipes Link */}
+        <QuickAction
+          icon={<LuBookOpen className="w-5 h-5" strokeWidth={2} />}
+          title="Recipes"
+          href={isDemo ? "/demo/recipes" : "/recipes"}
+        />
+
+        {/* Ingredients Link */}
+        <QuickAction
+          icon={<LuCarrot className="w-5 h-5" strokeWidth={2} />}
+          title="Ingredients"
+          href={isDemo ? "/demo/ingredients" : "/ingredients"}
+        />
       </div>
 
       {/* Two Column Layout */}
@@ -223,6 +221,7 @@ export default function DashboardClient({
   );
 }
 
+// Updated QuickAction Component
 function QuickAction({
   icon,
   title,
@@ -235,10 +234,14 @@ function QuickAction({
   return (
     <Link
       href={href}
-      className="hover:border-[#C9E6EA] text-zinc-900 dark:text-white bg-white dark:bg-zinc-800 shadow-sm border border-zinc-200 dark:border-zinc-700 p-6 rounded-xl text-center transition-colors transform hover:scale-105 hover:shadow-[#C9E6EA] cursor-pointer"
+      className="group flex items-center gap-3 p-3 sm:p-4 bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl hover:border-[#3A8F9E] hover:ring-1 hover:ring-[#3A8F9E]/20 transition-all text-left shadow-sm focus:outline-none"
     >
-      <div className="flex justify-center mb-3">{icon}</div>
-      <div className="font-medium">{title}</div>
+      <div className="flex items-center justify-center shrink-0 w-10 h-10 rounded-lg bg-zinc-50 dark:bg-zinc-900 text-[#3A8F9E] group-hover:bg-[#3A8F9E]/10 transition-colors">
+        {icon}
+      </div>
+      <span className="text-sm font-semibold text-zinc-900 dark:text-zinc-100 group-hover:text-[#3A8F9E] transition-colors">
+        {title}
+      </span>
     </Link>
   );
 }
