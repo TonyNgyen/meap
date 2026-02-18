@@ -6,7 +6,7 @@ import React, {
   useState,
   useImperativeHandle,
 } from "react";
-import { LuBox } from "react-icons/lu";
+import { LuBox, LuPlus } from "react-icons/lu";
 
 type InventoryItemType = {
   id: string;
@@ -54,20 +54,32 @@ function InventoryItemSkeleton() {
   );
 }
 
+// Updated Empty State specifically for use inside Cards
 function EmptyInventoryState() {
   return (
-    <div className="text-center">
-      <div className="text-zinc-400 dark:text-zinc-500 mb-4">
-        <LuBox className="w-14 h-14 mx-auto" />
+    <div className="flex flex-col items-center justify-center py-10">
+      {/* Icon with a "Soft" Presence */}
+      <div className="relative mb-4">
+        <div className="absolute inset-0 bg-[#3A8F9E]/10 blur-xl rounded-full" />{" "}
+        {/* Subtle glow */}
+        <div className="relative flex items-center justify-center w-16 h-16 rounded-2xl bg-zinc-50 dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-700 shadow-sm">
+          <LuBox className="w-8 h-8 text-[#3A8F9E]" strokeWidth={1.5} />
+        </div>
       </div>
-      <h3 className="text-lg font-semibold text-zinc-900 dark:text-white mb-2">
-        Your inventory is empty
-      </h3>
-      <p className="text-zinc-500 dark:text-zinc-400 mb-4 font-medium">
-        Add items to track your inventory
-      </p>
+
+      <div className="text-center max-w-[240px]">
+        <h3 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100 mb-1">
+          No items tracked
+        </h3>
+        <p className="text-xs text-zinc-500 dark:text-zinc-400 mb-5">
+          Your pantry is looking a bit empty. Start adding ingredients to see
+          them here.
+        </p>
+      </div>
+
       <Link href="/inventory">
-        <button className="px-4 py-2 font-semibold bg-[#3A8F9E] text-white rounded-md hover:bg-[#337E8D] transition-colors cursor-pointer">
+        <button className="group flex items-center gap-2 px-4 py-2 text-xs font-semibold bg-white dark:bg-zinc-900 text-zinc-700 dark:text-zinc-300 border border-zinc-200 dark:border-zinc-700 rounded-lg hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-all shadow-sm">
+          <LuPlus className="w-3.5 h-3.5 text-[#3A8F9E] group-hover:scale-110 transition-transform" />
           Add Item
         </button>
       </Link>
