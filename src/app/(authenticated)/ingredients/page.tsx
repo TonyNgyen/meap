@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import AddIngredientForm from "@/components/add-ingredient-form";
 import { useApiClient } from "@/lib/hooks";
 import { ingredientsApi, Ingredient, Nutrient, ApiError } from "@/lib/api";
+import { capitalizeWords } from "@/utils/helperFunctions";
 
 const SORTABLE_NUTRIENTS = [
   { key: "name", display: "Name" },
@@ -216,11 +217,11 @@ export default function IngredientsPage() {
             <div className="flex items-start justify-between mb-4">
               <div className="flex-1">
                 <h2 className="font-bold text-xl text-zinc-900 dark:text-white mb-1">
-                  {ingredient.name}
+                  {capitalizeWords(ingredient.name)}
                 </h2>
                 {ingredient.brand && (
                   <p className="text-zinc-600 dark:text-zinc-400 text-sm">
-                    Brand: {ingredient.brand}
+                    Brand: {capitalizeWords(ingredient.brand)}
                   </p>
                 )}
                 <div className="space-y-1 mt-1">

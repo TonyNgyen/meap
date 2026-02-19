@@ -9,3 +9,11 @@ export function convertToGrams(
   if (!conv) throw new Error(`Unknown unit: ${unit}`);
   return amount * conv.amount;
 }
+
+export function capitalizeWords(str: string): string {
+  return str
+    .toLowerCase()
+    .split(/\s+/)
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
+}

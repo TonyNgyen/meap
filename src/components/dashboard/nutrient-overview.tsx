@@ -392,10 +392,10 @@ const NutrientOverview = forwardRef(
           </div>
         ) : hasNoFoodLogs ? (
           /* Premium Empty State */
-          <div className="flex flex-col items-center justify-center py-16 px-4 bg-zinc-50/50 dark:bg-zinc-800/20 rounded-3xl border border-dashed border-zinc-200 dark:border-zinc-700">
-            <div className="relative mb-6">
+          <div className="flex flex-col items-center justify-center py-4 bg-white dark:bg-zinc-800/20 rounded-3xl border border-dashed border-zinc-200 dark:border-zinc-700">
+            <div className="relative mb-4">
               <div className="absolute inset-0 bg-[#3A8F9E]/10 blur-2xl rounded-full" />
-              <div className="relative flex items-center justify-center w-16 h-16 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-700 shadow-sm">
+              <div className="relative flex items-center justify-center w-16 h-16 rounded-2xl bg-zinc-50 dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-700 shadow-sm">
                 <svg
                   className="w-8 h-8 text-[#3A8F9E]"
                   fill="none"
@@ -414,17 +414,15 @@ const NutrientOverview = forwardRef(
             <h3 className="text-base font-semibold text-zinc-900 dark:text-white mb-2 text-center">
               Fuel your day
             </h3>
-            <p className="text-sm text-zinc-500 dark:text-zinc-400 mb-8 text-center max-w-sm">
+            <p className="text-sm text-zinc-500 dark:text-zinc-400 mb-4 text-center max-w-sm">
               Log your first meal to generate your daily nutrient breakdown and
               track your goals.
             </p>
             {/* Wrap the form so it feels like a deliberate action zone */}
-            <div className="w-full max-w-md bg-white dark:bg-zinc-800 p-2 rounded-2xl shadow-sm border border-zinc-100 dark:border-zinc-700">
-              <AddLogForm
-                selectedDate={selectedDate}
-                onLogSuccess={handleLogSuccess}
-              />
-            </div>
+            <AddLogForm
+              selectedDate={selectedDate}
+              onLogSuccess={handleLogSuccess}
+            />
           </div>
         ) : hasNoNutrients ? (
           <div className="bg-white dark:bg-zinc-800 rounded-xl shadow-sm border border-zinc-200 dark:border-zinc-700 p-4 text-center">

@@ -159,7 +159,7 @@ export default function DashboardClient({
         {/* Log Food Button */}
         <button
           onClick={() => setIsLogModalOpen(true)}
-          className="group flex items-center gap-3 p-3 sm:p-4 bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl hover:border-[#3A8F9E] hover:ring-1 hover:ring-[#3A8F9E]/20 transition-all text-left shadow-sm focus:outline-none"
+          className="cursor-pointer group flex items-center gap-3 p-3 sm:p-4 bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl hover:border-[#3A8F9E] hover:ring-1 hover:ring-[#3A8F9E]/20 transition-all text-left shadow-sm focus:outline-none"
         >
           <div className="flex items-center justify-center shrink-0 w-10 h-10 rounded-lg bg-zinc-50 dark:bg-zinc-900 text-[#3A8F9E] group-hover:bg-[#3A8F9E]/10 transition-colors">
             <LuUtensils className="w-5 h-5" strokeWidth={2} />
@@ -172,7 +172,7 @@ export default function DashboardClient({
         {/* Add Inventory Button */}
         <button
           onClick={() => setIsInventoryModalOpen(true)}
-          className="group flex items-center gap-3 p-3 sm:p-4 bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl hover:border-[#3A8F9E] hover:ring-1 hover:ring-[#3A8F9E]/20 transition-all text-left shadow-sm focus:outline-none"
+          className="cursor-pointer group flex items-center gap-3 p-3 sm:p-4 bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl hover:border-[#3A8F9E] hover:ring-1 hover:ring-[#3A8F9E]/20 transition-all text-left shadow-sm focus:outline-none"
         >
           <div className="flex items-center justify-center shrink-0 w-10 h-10 rounded-lg bg-zinc-50 dark:bg-zinc-900 text-[#3A8F9E] group-hover:bg-[#3A8F9E]/10 transition-colors">
             <LuBoxes className="w-5 h-5" strokeWidth={2} />
