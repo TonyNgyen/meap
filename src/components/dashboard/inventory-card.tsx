@@ -7,6 +7,7 @@ import React, {
   useImperativeHandle,
 } from "react";
 import { LuBox, LuPlus } from "react-icons/lu";
+import Heading from "../heading";
 
 type InventoryItemType = {
   id: string;
@@ -98,9 +99,7 @@ const InventoryCard = forwardRef<
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
           <LuBox className="w-4 h-4 text-zinc-400" />
-          <h2 className="text-sm font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">
-            Inventory Status
-          </h2>
+          <Heading>Inventory</Heading>
         </div>
       </div>
 

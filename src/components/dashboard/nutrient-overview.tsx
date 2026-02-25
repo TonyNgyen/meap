@@ -9,6 +9,7 @@ import React, {
 import { ALL_NUTRIENTS_DICT } from "@/constants/constants";
 import AddLogForm from "../add-log-form";
 import { useFetch } from "@/providers/demo-provider";
+import Heading from "../heading";
 
 type FoodLog = {
   id: string;
@@ -371,9 +372,7 @@ const NutrientOverview = forwardRef(
         {/* Unified Header Style */}
         <div className="flex items-center gap-2 mb-2">
           <div className="w-2 h-2 rounded-full bg-[#3A8F9E] animate-pulse" />
-          <h2 className="text-sm font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">
-            Today's Nutrition
-          </h2>
+          <Heading>Today's Nutrition</Heading>
         </div>
 
         {isLoading ? (

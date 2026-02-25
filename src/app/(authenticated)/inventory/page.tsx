@@ -4,6 +4,7 @@ import AddInventoryForm from "@/components/add-inventory-form";
 import React, { useEffect, useState } from "react";
 import { LuBox } from "react-icons/lu";
 import { useFetch } from "@/providers/demo-provider";
+import Heading from "@/components/heading";
 
 type Ingredient = { id: string; name: string; brand: string | null };
 type Recipe = { id: string; name: string };
@@ -107,9 +108,6 @@ export default function InventoryPage() {
 
       {/* ✅ Inventory List */}
       <div>
-        <h2 className="text-xl font-semibold text-zinc-900 dark:text-white mb-4">
-          Current Inventory
-        </h2>
 
         {inventory.length === 0 ? (
           <div className="bg-zinc-50 dark:bg-zinc-800 rounded-xl p-8 text-center">
@@ -130,7 +128,7 @@ export default function InventoryPage() {
             </button>
           </div>
         ) : (
-          <div className="grid gap-3">
+          <div className="grid gap-3 mt-4">
             {inventory.map((item) => (
               <div
                 key={item.id}

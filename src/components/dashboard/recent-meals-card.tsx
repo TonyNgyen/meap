@@ -7,6 +7,7 @@ import React, {
   useImperativeHandle,
 } from "react";
 import { LuHistory, LuPlus, LuUtensils } from "react-icons/lu";
+import Heading from "../heading";
 
 type FoodLogNutrient = {
   nutrient_key: string;
@@ -98,9 +99,7 @@ const RecentMealsCard = forwardRef<
     <div className="bg-white dark:bg-zinc-800 rounded-xl shadow-sm border border-zinc-200 dark:border-zinc-700 p-5 flex flex-col">
       <div className="flex items-center gap-2 mb-4">
         <LuHistory className="w-4 h-4 text-zinc-400" />
-        <h2 className="text-sm font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">
-          Recent Meals
-        </h2>
+        <Heading>Recent Meals</Heading>
       </div>
 
       {/* Applied the exact same max-h-[282px] and maskImage logic as InventoryCard */}

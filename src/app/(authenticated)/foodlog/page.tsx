@@ -3,6 +3,7 @@
 import AddLogForm from "@/components/add-log-form";
 import React, { useState, useEffect } from "react";
 import { useFetch } from "@/providers/demo-provider";
+import Heading from "@/components/heading";
 
 type Ingredient = { id: string; name: string; brand: string | null };
 type Recipe = { id: string; name: string };
@@ -22,7 +23,7 @@ type FoodLog = {
 
 export default function FoodLogPage() {
   const [selectedDate, setSelectedDate] = useState(
-    new Date().toISOString().split("T")[0]
+    new Date().toISOString().split("T")[0],
   );
   const [foodLogs, setFoodLogs] = useState<FoodLog[]>([]);
   const [showLogs, setShowLogs] = useState(false);
@@ -100,16 +101,12 @@ export default function FoodLogPage() {
         </div>
       </div>
 
-      <h2 className="text-xl font-semibold text-zinc-900 dark:text-white mb-4">
-        Daily Summary
-      </h2>
+      <Heading>Today's Nutrition</Heading>
 
       {/* Food Logs and Nutrition Summary */}
       <div className="bg-white dark:bg-zinc-800 rounded-xl p-6 shadow-sm border border-zinc-200 dark:border-zinc-700">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-semibold text-zinc-900 dark:text-white">
-            Nutritional Overview
-          </h3>
+          <Heading>Nutrition Summary</Heading>
           <button
             onClick={() => setShowLogs(!showLogs)}
             className="text-md font-semibold text-[#3A8F9E] dark:text-[#C9E6EA] hover:underline cursor-pointer transition-all"
@@ -147,15 +144,13 @@ export default function FoodLogPage() {
         {/* Food Logs Details */}
         {showLogs && (
           <div className="mt-6 pt-4 border-t border-zinc-200 dark:border-zinc-700">
-            <h3 className="font-semibold text-zinc-900 dark:text-white mb-3">
-              Detailed Food Logs
-            </h3>
+            <Heading>Food Log Details</Heading>
             {foodLogs.length === 0 ? (
               <p className="text-zinc-500 dark:text-zinc-400">
                 No food logged for this date
               </p>
             ) : (
-              <div className="space-y-3">
+              <div className="space-y-3 mt-2">
                 {foodLogs.map((log) => (
                   <div
                     key={log.id}

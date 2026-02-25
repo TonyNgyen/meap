@@ -201,9 +201,6 @@ export default function GoalsPage() {
       </div>
 
       <div className="">
-        <h2 className="text-xl font-semibold text-zinc-900 dark:text-white mb-4">
-          Your Goals
-        </h2>
 
         {/* Loading State */}
         {initialLoading ? (

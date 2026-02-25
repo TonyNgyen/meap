@@ -9,6 +9,7 @@ import AddLogModal from "../add-log-modal";
 import AddInventoryModal from "../add-inventory-modal";
 import { logout } from "@/app/(authenticated)/logout/actions";
 import { useFetch } from "@/providers/demo-provider";
+import Heading from "../heading";
 
 type NutrientOverviewHandle = {
   refresh: () => Promise<void>;
@@ -149,9 +150,7 @@ export default function DashboardClient({
 
       {/* Quick Actions */}
       <div className="flex items-center gap-2 mb-4 mt-8">
-        <h2 className="text-sm font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">
-          Quick Actions
-        </h2>
+        <Heading>Quick Actions</Heading>
       </div>
 
       {/* Sleek Horizontal Layout */}
