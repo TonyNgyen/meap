@@ -1,10 +1,9 @@
 "use client";
 
-import AddInventoryForm from "@/components/add-inventory-form";
+import AddInventoryForm from "@/components/inventory/add-inventory-form";
 import React, { useEffect, useState } from "react";
 import { LuBox } from "react-icons/lu";
 import { useFetch } from "@/providers/demo-provider";
-import Heading from "@/components/heading";
 
 type Ingredient = { id: string; name: string; brand: string | null };
 type Recipe = { id: string; name: string };

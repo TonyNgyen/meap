@@ -1,5 +1,5 @@
-import SidebarNav from "@/components/sidebar-nav";
-import AuthFooter from "@/components/auth-footer";
+import SidebarNav from "@/components/nav/sidebar-nav";
+import AuthFooter from "@/components/nav/auth-footer";
 import { createClient } from "@/utils/supabase/server";
 import { redirect } from "next/navigation";
 import "../globals.css";

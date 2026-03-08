@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { ALL_NUTRIENTS_DICT } from "@/constants/constants";
-import AddGoalForm from "@/components/add-goal-form";
+import AddGoalForm from "@/components/goal/add-goal-form";
 import { LuTrophy } from "react-icons/lu";
 import { useFetch } from "@/providers/demo-provider";
 

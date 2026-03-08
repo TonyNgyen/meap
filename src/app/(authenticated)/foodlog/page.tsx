@@ -1,9 +1,9 @@
 "use client";
 
-import AddLogForm from "@/components/add-log-form";
+import AddLogForm from "@/components/log/add-log-form";
 import React, { useState, useEffect } from "react";
 import { useFetch } from "@/providers/demo-provider";
-import Heading from "@/components/heading";
+import Heading from "@/components/nav/heading";
 
 type Ingredient = { id: string; name: string; brand: string | null };
 type Recipe = { id: string; name: string };

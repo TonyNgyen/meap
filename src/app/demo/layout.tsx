@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import "../globals.css";
-import SidebarNav from "@/components/sidebar-nav";
-import AuthFooter from "@/components/auth-footer";
+import SidebarNav from "@/components/nav/sidebar-nav";
+import AuthFooter from "@/components/nav/auth-footer";
 import { DemoProvider } from "@/providers/demo-provider";
 import Link from "next/link";
 

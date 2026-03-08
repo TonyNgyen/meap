@@ -1,10 +1,11 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import AddIngredientForm from "@/components/add-ingredient-form";
+
 import { useApiClient } from "@/lib/hooks";
 import { ingredientsApi, Ingredient, Nutrient, ApiError } from "@/lib/api";
 import { capitalizeWords } from "@/utils/helperFunctions";
+import AddIngredientForm from "@/components/ingredient/add-ingredient-form";
 
 const SORTABLE_NUTRIENTS = [
   { key: "name", display: "Name" },

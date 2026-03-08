@@ -2,7 +2,7 @@
 
 import { ALL_NUTRIENTS_DICT } from "@/constants/constants";
 import React, { useEffect, useMemo, useState } from "react";
-import AddRecipeForm from "@/components/add-recipe-form";
+import AddRecipeForm from "@/components/recipe/add-recipe-form";
 import { LuChefHat } from "react-icons/lu";
 import { useApiClient } from "@/lib/hooks";
 import {

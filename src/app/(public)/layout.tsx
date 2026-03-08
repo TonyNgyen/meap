@@ -1,5 +1,5 @@
-import TopNav from "@/components/top-nav";
-import Footer from "@/components/footer";
+import TopNav from "@/components/nav/top-nav";
+import Footer from "@/components/nav/footer";
 
 export default function PublicLayout({
   children,
