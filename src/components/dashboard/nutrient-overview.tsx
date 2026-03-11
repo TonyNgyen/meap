@@ -7,9 +7,9 @@ import React, {
   useImperativeHandle,
 } from "react";
 import { ALL_NUTRIENTS_DICT } from "@/constants/constants";
-import AddLogForm from "../add-log-form";
+import AddLogForm from "../log/add-log-form";
 import { useFetch } from "@/providers/demo-provider";
-import Heading from "../heading";
+import Heading from "../nav/heading";
 
 type FoodLog = {
   id: string;
